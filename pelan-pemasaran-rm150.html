@@ -1,0 +1,607 @@
+<title>Kira Turun Padang</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+  :root{
+    color-scheme:light;
+    --ground:#EDEAE1;
+    --surface:#FFFFFF;
+    --surface-2:#F5F2EA;
+    --ink:#1A1D16;
+    --ink-2:#3E4437;
+    --muted:#6E7266;
+    --line:#DCD8CC;
+    --line-strong:#C7C2B2;
+    --accent:#E8A317;
+    --accent-ink:#1A1D16;
+    --good:#2E7D4F;
+    --good-soft:#E2EFE6;
+    --bad:#C4452D;
+    --bad-soft:#F7E3DE;
+    --band:#1A1D16;
+    --band-ink:#EDEBE2;
+    --band-muted:#8E9483;
+    --band-line:#33382B;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --ground:#14170F;
+      --surface:#1E221A;
+      --surface-2:#232819;
+      --ink:#EDEBE2;
+      --ink-2:#C9CCBE;
+      --muted:#8B9082;
+      --line:#2E3328;
+      --line-strong:#3C422F;
+      --accent:#F0B23A;
+      --accent-ink:#14170F;
+      --good:#5FC08A;
+      --good-soft:#1D2E22;
+      --bad:#E8785C;
+      --bad-soft:#33201A;
+      --band:#242A1B;
+      --band-ink:#F2F0E6;
+      --band-muted:#9AA08C;
+      --band-line:#3C422F;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --ground:#14170F;
+    --surface:#1E221A;
+    --surface-2:#232819;
+    --ink:#EDEBE2;
+    --ink-2:#C9CCBE;
+    --muted:#8B9082;
+    --line:#2E3328;
+    --line-strong:#3C422F;
+    --accent:#F0B23A;
+    --accent-ink:#14170F;
+    --good:#5FC08A;
+    --good-soft:#1D2E22;
+    --bad:#E8785C;
+    --bad-soft:#33201A;
+    --band:#242A1B;
+    --band-ink:#F2F0E6;
+    --band-muted:#9AA08C;
+    --band-line:#3C422F;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--ground);
+    color:var(--ink);
+    font-family:"Archivo","Segoe UI",system-ui,sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  :focus-visible{outline:2.5px solid var(--accent);outline-offset:3px;border-radius:4px}
+  @media (prefers-reduced-motion: reduce){*{animation-duration:.001ms !important;transition-duration:.001ms !important}}
+
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px 90px}
+  .prose{max-width:66ch}
+
+  /* ---------- kepala ---------- */
+  .kepala{background:var(--band);color:var(--band-ink);border-bottom:1px solid var(--band-line)}
+  .kepala .wrap{padding-top:34px;padding-bottom:34px}
+  .lockup{display:flex;align-items:center;gap:11px;margin-bottom:26px}
+  .lockup svg{width:30px;height:30px;flex:none}
+  .lockup .nama{
+    font-family:"Bricolage Grotesque","Archivo",sans-serif;
+    font-weight:800;font-size:25px;letter-spacing:-.055em;line-height:.9;
+  }
+  .lockup .nama i{color:var(--accent);font-style:normal}
+  .lockup .jenis{
+    margin-left:auto;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+    font-weight:700;color:var(--band-muted);
+  }
+  h1{
+    font-family:"Bricolage Grotesque","Archivo",sans-serif;
+    font-size:clamp(34px,6.4vw,52px);font-weight:800;letter-spacing:-.038em;
+    line-height:1.02;margin:0;text-wrap:balance;max-width:15ch;
+  }
+  .tesis{margin:18px 0 0;font-size:clamp(16px,2.2vw,18.5px);color:var(--band-muted);max-width:56ch;line-height:1.55}
+  .tesis b{color:var(--band-ink);font-weight:600}
+  .meta{
+    display:flex;flex-wrap:wrap;gap:0;margin-top:28px;
+    border-top:1px solid var(--band-line);
+  }
+  .meta div{
+    flex:1 1 150px;padding:14px 16px 0 0;
+  }
+  .meta dt{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--band-muted);font-weight:700;margin:0}
+  .meta dd{margin:5px 0 0;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+
+  /* ---------- seksyen ---------- */
+  section{padding-top:52px}
+  .eyebrow{
+    font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;
+    color:var(--muted);margin:0 0 10px;
+  }
+  h2{
+    font-family:"Bricolage Grotesque","Archivo",sans-serif;
+    font-size:clamp(24px,3.6vw,31px);font-weight:800;letter-spacing:-.028em;
+    line-height:1.12;margin:0 0 14px;text-wrap:balance;max-width:20ch;
+  }
+  h3{
+    font-family:"Bricolage Grotesque","Archivo",sans-serif;
+    font-size:18px;font-weight:600;letter-spacing:-.015em;margin:0;
+  }
+  p{margin:0 0 14px}
+  .prose p:last-child{margin-bottom:0}
+  strong{font-weight:700}
+  em{font-style:normal;color:var(--muted)}
+
+  /* ---------- prasyarat ---------- */
+  .prasyarat{display:grid;gap:14px;margin-top:22px}
+  @media (min-width:720px){.prasyarat{grid-template-columns:1fr 1fr}}
+  .syarat{
+    background:var(--surface);border:1px solid var(--line);
+    border-top:3px solid var(--accent);border-radius:3px;padding:20px;
+  }
+  .syarat h3{margin-bottom:8px}
+  .syarat p{font-size:14.5px;color:var(--ink-2);margin:0}
+  .syarat .contoh{
+    margin-top:14px;padding:12px 14px;background:var(--surface-2);
+    border-left:2px solid var(--good);font-size:14px;color:var(--ink-2);
+  }
+  .syarat .contoh b{color:var(--ink)}
+
+  /* ---------- orang ---------- */
+  .orang{display:grid;gap:16px;margin-top:24px}
+  @media (min-width:720px){.orang{grid-template-columns:1fr 1fr}}
+  .kad-orang{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:20px;display:flex;flex-direction:column;gap:14px}
+  .kad-orang .atas{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .kad-orang .atas h3{flex:1;min-width:0}
+  .jam{
+    font-size:11.5px;font-weight:700;letter-spacing:.06em;font-variant-numeric:tabular-nums;
+    color:var(--accent-ink);background:var(--accent);padding:3px 8px;border-radius:2px;
+  }
+  .kad-orang .kisah{font-size:14.5px;color:var(--ink-2);margin:0}
+  .angka{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line)}
+  .angka div{background:var(--surface-2);display:flex;justify-content:space-between;gap:10px;padding:9px 12px;font-size:14px}
+  .angka div span:last-child{font-variant-numeric:tabular-nums;font-weight:700}
+  .kad-orang h4{
+    font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+    font-weight:700;margin:0;
+  }
+  .saluran-kecil{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .saluran-kecil li{display:flex;gap:10px;font-size:14.5px;line-height:1.45;align-items:flex-start}
+  .saluran-kecil .n{
+    font-variant-numeric:tabular-nums;font-weight:700;font-size:12px;color:var(--muted);
+    min-width:14px;padding-top:2px;
+  }
+
+  /* ---------- jadual ---------- */
+  .jadual-bekas{overflow-x:auto;margin-top:22px;border:1px solid var(--line);background:var(--surface)}
+  table{border-collapse:collapse;width:100%;min-width:540px;font-size:14.5px}
+  caption{
+    text-align:left;padding:14px 16px;font-size:12.5px;color:var(--muted);
+    border-bottom:1px solid var(--line);background:var(--surface-2);
+  }
+  th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{
+    font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+    font-weight:700;background:var(--surface-2);
+  }
+  tbody tr:last-child td{border-bottom:0}
+  td.duit,th.duit{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+  tfoot td{font-weight:700;background:var(--surface-2);border-top:2px solid var(--line-strong)}
+  td b{font-weight:600}
+  td small{display:block;color:var(--muted);font-size:12.5px;margin-top:3px;line-height:1.4}
+
+  .percaya{display:inline-flex;gap:3px;align-items:center}
+  .percaya i{width:7px;height:7px;border-radius:99px;background:var(--line-strong);display:block}
+  .percaya i.on{background:var(--good)}
+
+  /* ---------- amaran ---------- */
+  .amaran{
+    margin-top:24px;background:var(--bad-soft);border:1px solid var(--bad);
+    border-radius:3px;padding:20px;display:flex;flex-direction:column;gap:10px;
+  }
+  .amaran h3{color:var(--bad)}
+  .amaran p{margin:0;font-size:14.5px;color:var(--ink-2)}
+  .amaran .ukur{
+    display:flex;flex-wrap:wrap;gap:1px;background:var(--bad);margin-top:4px;
+  }
+  .amaran .ukur div{background:var(--surface);flex:1 1 190px;padding:12px 14px}
+  .amaran .ukur dt{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:0}
+  .amaran .ukur dd{margin:4px 0 0;font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;font-family:"Bricolage Grotesque","Archivo",sans-serif;letter-spacing:-.02em}
+
+  /* ---------- garis masa ---------- */
+  .fasa{list-style:none;margin:24px 0 0;padding:0;display:flex;flex-direction:column}
+  .fasa li{
+    display:grid;grid-template-columns:56px 1fr;gap:18px;
+    padding:20px 0;border-top:1px solid var(--line);
+  }
+  .fasa li:first-child{border-top:0;padding-top:4px}
+  .undi{width:46px;height:34px;flex:none;margin-top:3px}
+  .undi path{stroke-width:3.6;stroke-linecap:round;fill:none}
+  .undi .bar{stroke:var(--ink)}
+  .undi .cross{stroke:var(--accent)}
+  .fasa .bila{
+    font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);font-weight:700;margin:0 0 4px;
+  }
+  .fasa h3{margin-bottom:6px}
+  .fasa p{font-size:14.5px;color:var(--ink-2);margin:0 0 8px;max-width:60ch}
+  .fasa .ukuran{
+    display:inline-block;font-size:13px;font-weight:600;
+    background:var(--good-soft);color:var(--good);padding:4px 10px;border-radius:2px;
+  }
+  .fasa .kosong{background:var(--surface-2);color:var(--muted)}
+
+  /* ---------- tak buat ---------- */
+  .tak{list-style:none;margin:22px 0 0;padding:0;display:flex;flex-direction:column;gap:2px}
+  .tak li{
+    display:flex;gap:14px;align-items:flex-start;
+    padding:14px 16px;background:var(--surface);border:1px solid var(--line);
+  }
+  .tak li+li{border-top:0}
+  .tak .x{color:var(--bad);font-weight:700;font-size:15px;line-height:1.5;flex:none}
+  .tak b{display:block;font-weight:600;font-size:15px}
+  .tak small{color:var(--muted);font-size:13.5px;line-height:1.45}
+
+  /* ---------- kaki ---------- */
+  .kaki{
+    margin-top:56px;padding-top:22px;border-top:1px solid var(--line);
+    color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:8px 22px;
+  }
+</style>
+
+<header class="kepala">
+  <div class="wrap">
+    <div class="lockup">
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <path d="M11 13v22M19 13v22M27 13v22M35 13v22" fill="none" stroke="currentColor" stroke-width="4.6" stroke-linecap="round"/>
+        <path d="M7 36L39 12" fill="none" stroke="#E8A317" stroke-width="4.6" stroke-linecap="round"/>
+      </svg>
+      <span class="nama">k<i>i</i>ra</span>
+      <span class="jenis">Pelan pemasaran</span>
+    </div>
+
+    <h1>Turun padang dulu, iklan kemudian.</h1>
+    <p class="tesis">
+      Untuk peniaga tepi jalan, pemasaran paling berkesan ialah <b>ciri produk</b>, bukan iklan.
+      Empat bulan pertama kita belanja masa, bukan duit. Iklan hanya hidup bila kita dah ada
+      angka sebenar peniaga untuk ditunjuk.
+    </p>
+
+    <dl class="meta">
+      <div><dt>Bajet iklan</dt><dd>RM150 sebulan</dd></div>
+      <div><dt>Iklan bermula</dt><dd>Februari 2027</dd></div>
+      <div><dt>Sasaran musim</dt><dd>Ramadan 2027</dd></div>
+      <div><dt>Metrik utama</dt><dd>Kos satu tutup kira</dd></div>
+    </dl>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <p class="eyebrow">Sebelum satu sen dibelanjakan</p>
+    <h2>Dua perubahan produk yang jadi enjin pemasaran</h2>
+    <div class="prose">
+      <p>
+        Kad bulanan di bawah ialah bahan pemasaran kita yang sebenar. Semua saluran selepas ini
+        cuma memberi makan kepada kad itu. Tanpa dua benda ini, kita bayar untuk hantar peniaga
+        masuk ke aplikasi yang buat mereka rasa bersalah setiap malam.
+      </p>
+    </div>
+
+    <div class="prasyarat">
+      <div class="syarat">
+        <h3>Butang Ambil Untuk Rumah</h3>
+        <p>
+          Jenis rekod ketiga di sebelah Jualan dan Modal. Bukan modal, bukan untung, sekadar duit
+          yang keluar dari tin masuk ke hidup peniaga. Sekali tekan, tanpa alasan.
+        </p>
+        <div class="contoh">
+          Tanpa butang ini, tutup kira jerit <b>kurang RM125</b> setiap malam pada ibu tunggal yang
+          capai duit tin untuk yuran sekolah anak. Dia berhenti pada malam ketiga.
+        </div>
+      </div>
+      <div class="syarat">
+        <h3>Kad bulanan yang boleh di-forward</h3>
+        <p>
+          Satu gambar, satu ayat, angka peniaga itu sendiri, dengan butang hantar terus ke WhatsApp
+          dan pilihan tutup angka bagi yang segan.
+        </p>
+        <div class="contoh">
+          <b>Bulan ni kau tangkap RM340 beza duit dalam tin, dan kau kutip RM180 hutang lama.</b>
+          Ayat itu yang orang forward, bukan senarai ciri kita.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Kajian pengguna, September 2026</p>
+    <h2>Dua orang yang kita pujuk</h2>
+    <div class="prose">
+      <p>
+        Kedua-duanya jual tepi jalan, tetapi mereka jumpa aplikasi melalui jalan yang berbeza
+        sepenuhnya. Susunan di bawah ialah susunan sebenar, bukan susunan yang kita harap.
+      </p>
+    </div>
+
+    <div class="orang">
+      <article class="kad-orang">
+        <div class="atas">
+          <h3>Pak Din</h3>
+          <span class="jam">5.45 pagi hingga 3 petang</span>
+        </div>
+        <p class="kisah">
+          Gerai nasi lemak, buka enam hari seminggu. Tangan berminyak dari pagi sampai tengah hari,
+          jadi bukan dia yang tekan telefon. Isteri atau anak yang masukkan data waktu malam.
+        </p>
+        <div class="angka">
+          <div><span>Untung sehari</span><span>RM120 hingga RM180</span></div>
+          <div><span>RM120 setahun bersamaan</span><span>33 sen sehari</span></div>
+          <div><span>Halangan sebenar</span><span>Bukti, bukan harga</span></div>
+        </div>
+        <h4>Cara dia jumpa kita</h4>
+        <ol class="saluran-kecil">
+          <li><span class="n">1</span><span>Peniaga sebelah gerai tunjuk telefon dia</span></li>
+          <li><span class="n">2</span><span>Kaunter bayar di pasar borong, dilalui setiap pagi</span></li>
+          <li><span class="n">3</span><span>Anak yang pasang semua benda dalam telefon dia</span></li>
+          <li><span class="n">4</span><span>Video yang tunjuk angka betul peniaga betul</span></li>
+        </ol>
+      </article>
+
+      <article class="kad-orang">
+        <div class="atas">
+          <h3>Kak Ani</h3>
+          <span class="jam">6 pagi hingga 10 pagi</span>
+        </div>
+        <p class="kisah">
+          Ibu tunggal di Ampang, empat anak sekolah dan seorang di universiti. Masak dari pukul 2.30
+          pagi, habis jual dalam empat jam. Telefon lama dan memori penuh.
+        </p>
+        <div class="angka">
+          <div><span>Jualan sehari</span><span>RM300</span></div>
+          <div><span>Untung kasar sebulan</span><span>RM4,700</span></div>
+          <div><span>Baki selepas rumah dan anak</span><span>RM1,450</span></div>
+        </div>
+        <h4>Cara dia jumpa kita</h4>
+        <ol class="saluran-kecil">
+          <li><span class="n">1</span><span>Mesej yang di-forward dalam kumpulan WhatsApp</span></li>
+          <li><span class="n">2</span><span>Anak universiti yang pasang dan terangkan</span></li>
+          <li><span class="n">3</span><span>Pegawai AIM atau TEKUN pada mesyuarat pusat</span></li>
+          <li><span class="n">4</span><span>TikTok waktu rehat selepas pukul 10 pagi</span></li>
+        </ol>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">September 2026 hingga Januari 2027</p>
+    <h2>Empat bulan tanpa iklan</h2>
+    <div class="prose">
+      <p>
+        Sasaran tunggal fasa ini ialah 30 peniaga pengasas, dengan 15 daripadanya tutup kira lima
+        hari berturut. Semua saluran di bawah percuma. Yang dibayar ialah masa pengasas sendiri.
+      </p>
+    </div>
+
+    <div class="jadual-bekas">
+      <table>
+        <caption>Kepercayaan diukur dari sudut peniaga, bukan dari sudut kita.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Saluran</th>
+            <th scope="col">Kerja sebenar</th>
+            <th scope="col">Kepercayaan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Turun padang sendiri</b><small>Pasar borong Selayang pukul 4 pagi, Pasar Ampang, Chow Kit</small></td>
+            <td>Tiga pagi seminggu, enam minggu. Buat tutup kira mereka secara percuma seminggu sebelum sebut aplikasi.</td>
+            <td><span class="percaya" role="img" aria-label="Kepercayaan 5 daripada 5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td>
+          </tr>
+          <tr>
+            <td><b>Pegawai AIM dan TEKUN</b><small>Usahawan mikro, majoriti wanita, berjumpa mingguan</small></td>
+            <td>Bengkel percuma sejam pada mesyuarat pusat. Pegawai pasangkan terus di tempat.</td>
+            <td><span class="percaya" role="img" aria-label="Kepercayaan 5 daripada 5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></td>
+          </tr>
+          <tr>
+            <td><b>Kaunter pemborong</b><small>Tempat setiap peniaga lalu setiap pagi</small></td>
+            <td>Satu standee kecil, kos cetakan sahaja. Balasannya nama pemborong disebut dalam aplikasi.</td>
+            <td><span class="percaya" role="img" aria-label="Kepercayaan 4 daripada 5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td>
+          </tr>
+          <tr>
+            <td><b>Kad bulanan di-forward</b><small>Kumpulan kelas anak, surau, jiran, penduduk flat</small></td>
+            <td>Tiada kerja pemasaran. Ia berlaku sendiri kalau kad itu bagus dan pautannya buka tanpa muat turun.</td>
+            <td><span class="percaya" role="img" aria-label="Kepercayaan 4 daripada 5"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></td>
+          </tr>
+          <tr>
+            <td><b>Enjin kandungan</b><small>Tiga video menegak seminggu, dirakam pukul 5 pagi</small></td>
+            <td>Siri tujuh hari dengan seorang peniaga sebenar. Bukan animasi aplikasi berpusing.</td>
+            <td><span class="percaya" role="img" aria-label="Kepercayaan 3 daripada 5"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></td>
+          </tr>
+          <tr>
+            <td><b>Kumpulan Facebook peniaga</b><small>Lima belas hingga dua puluh kumpulan</small></td>
+            <td>Bulan pertama haram tampal pautan. Beri templat buku tutup kira PDF dan jawab soalan sahaja.</td>
+            <td><span class="percaya" role="img" aria-label="Kepercayaan 2 daripada 5"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></td>
+          </tr>
+          <tr>
+            <td><b>Cerita akhbar</b><small>Sudut ibu tunggal Ampang yang jumpa RM300 bocor</small></td>
+            <td>Satu emel kepada meja berita. Cerita macam ini diambil tanpa bayaran.</td>
+            <td><span class="percaya" role="img" aria-label="Kepercayaan 2 daripada 5"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Februari 2027 dan seterusnya</p>
+    <h2>RM150 sebulan, semuanya untuk orang suam</h2>
+    <div class="prose">
+      <p>
+        RM150 sebulan ialah RM5 sehari. Itu tidak cukup untuk beritahu orang ramai kita wujud,
+        jadi kita langsung tidak cuba. Duit ini hanya mengejar orang yang sudah tunjuk minat.
+      </p>
+    </div>
+
+    <div class="jadual-bekas">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Guna</th>
+            <th scope="col">Sebab</th>
+            <th scope="col" class="duit">Sebulan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Sasar semula penonton video</b><small>Mereka yang tonton melebihi separuh</small></td>
+            <td>Paling suam, paling murah, paling tinggi kadar tukaran.</td>
+            <td class="duit">RM90</td>
+          </tr>
+          <tr>
+            <td><b>Ujian geo sangat sempit</b><small>Radius tiga kilometer keliling pasar borong</small></td>
+            <td>Pukul 4 hingga 7 pagi, telefon sahaja. Khalayak kecil bermakna kos paparan murah.</td>
+            <td class="duit">RM40</td>
+          </tr>
+          <tr>
+            <td><b>Naikkan satu pos organik</b><small>Pemenang dipilih oleh penonton, bukan oleh kita</small></td>
+            <td>Hanya pos yang sudah menang secara semula jadi layak dapat duit.</td>
+            <td class="duit">RM20</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr><td colspan="2">Jumlah sebulan</td><td class="duit">RM150</td></tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="amaran">
+      <h3>Suis mati</h3>
+      <p>
+        Metrik kita bukan pemasangan. Orang yang pasang tetapi tidak pernah tutup kira bernilai
+        kosong. Yang dikira ialah kos untuk satu tutup kira pertama.
+      </p>
+      <dl class="ukur">
+        <div><dt>Had kos satu tutup kira pertama</dt><dd>RM3.00</dd></div>
+        <div><dt>Sasaran tutup kira pertama sebulan</dt><dd>50 orang</dd></div>
+        <div><dt>Bahan iklan diuji sebulan</dt><dd>3 versi</dd></div>
+      </dl>
+      <p>
+        Melebihi had itu, iklan dimatikan hari yang sama dan kerja balik ke padang. Bahan iklan
+        yang lemah dibunuh setiap Isnin. Tiada iklan hidup melebihi dua minggu tanpa bukti.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Garis masa</p>
+    <h2>Lima fasa sampai musim bazar</h2>
+
+    <ol class="fasa">
+      <li>
+        <svg class="undi" viewBox="0 0 48 36" aria-hidden="true">
+          <path class="bar" d="M8 6v24"/>
+        </svg>
+        <div>
+          <p class="bila">September hingga Oktober 2026</p>
+          <h3>Peniaga pengasas</h3>
+          <p>Turun padang tiga pagi seminggu. Betulkan butang Ambil Untuk Rumah dan longgarkan percubaan kepada 30 kali tutup kira.</p>
+          <span class="ukuran">15 daripada 30 tutup kira lima hari berturut</span>
+        </div>
+      </li>
+      <li>
+        <svg class="undi" viewBox="0 0 48 36" aria-hidden="true">
+          <path class="bar" d="M8 6v24M16 6v24"/>
+        </svg>
+        <div>
+          <p class="bila">November hingga Disember 2026</p>
+          <h3>Enjin kandungan dan pegawai</h3>
+          <p>Tiga video seminggu di gerai sebenar. Bengkel percuma dengan AIM dan TEKUN. Masih sifar iklan.</p>
+          <span class="ukuran">3,000 pemasangan, 40 peratus aktif</span>
+        </div>
+      </li>
+      <li>
+        <svg class="undi" viewBox="0 0 48 36" aria-hidden="true">
+          <path class="bar" d="M8 6v24M16 6v24M24 6v24"/>
+        </svg>
+        <div>
+          <p class="bila">Januari 2027</p>
+          <h3>Senarai menunggu</h3>
+          <p>Kumpul nama sebelum musim. Kunci kerjasama tapak dengan pemborong dan pengurus bazar.</p>
+          <span class="ukuran">1,500 nama, 3 kerjasama tapak</span>
+        </div>
+      </li>
+      <li>
+        <svg class="undi" viewBox="0 0 48 36" aria-hidden="true">
+          <path class="bar" d="M8 6v24M16 6v24M24 6v24M32 6v24"/>
+        </svg>
+        <div>
+          <p class="bila">Februari hingga Mac 2027</p>
+          <h3>Musim bazar, iklan dihidupkan</h3>
+          <p>RM150 sebulan mula berjalan, sasar semula sahaja. Bulan peniaga paling banyak duit dan paling sedar mereka tak tahu untung sebenar.</p>
+          <span class="ukuran">5,000 pemasangan dalam 30 hari</span>
+        </div>
+      </li>
+      <li>
+        <svg class="undi" viewBox="0 0 48 36" aria-hidden="true">
+          <path class="bar" d="M8 6v24M16 6v24M24 6v24M32 6v24"/>
+          <path class="cross" d="M4 32L38 8"/>
+        </svg>
+        <div>
+          <p class="bila">April 2027</p>
+          <h3>Tukar jadi bayaran</h3>
+          <p>Tanya pelan tahunan selepas raya, waktu duit ada. Tawar bulanan dahulu bagi yang aliran tunainya ketat.</p>
+          <span class="ukuran">600 pelanggan berbayar</span>
+        </div>
+      </li>
+    </ol>
+
+    <div class="amaran" style="margin-top:32px">
+      <h3>Syarat berhenti</h3>
+      <p>
+        Kalau kurang daripada 10 daripada 30 peniaga pengasas tutup kira lima hari berturut,
+        produk yang salah, bukan pemasaran. Semua saluran dihentikan dan kerja balik ke kod.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Sengaja ditinggalkan</p>
+    <h2>Apa yang kita tak buat</h2>
+
+    <ul class="tak">
+      <li>
+        <span class="x" aria-hidden="true">&#10005;</span>
+        <span><b>Iklan sejuk kepada orang ramai</b><small>Pada RM5 sehari, itu sama dengan membakar duit.</small></span>
+      </li>
+      <li>
+        <span class="x" aria-hidden="true">&#10005;</span>
+        <span><b>Penaja influencer</b><small>Peniaga tidak percaya orang yang tidak pernah bangun pukul 3 pagi.</small></span>
+      </li>
+      <li>
+        <span class="x" aria-hidden="true">&#10005;</span>
+        <span><b>Iklan sebelum produk sedia</b><small>Menghantar peniaga ke aplikasi yang buat dia rasa bersalah lebih teruk daripada tidak beriklan langsung.</small></span>
+      </li>
+      <li>
+        <span class="x" aria-hidden="true">&#10005;</span>
+        <span><b>Sebarang iklan dari September hingga Januari</b><small>Empat bulan pertama sepenuhnya atas kaki sendiri.</small></span>
+      </li>
+      <li>
+        <span class="x" aria-hidden="true">&#10005;</span>
+        <span><b>Skrin muat turun sebelum orang nampak nilai</b><small>Telefon Kak Ani penuh. Setiap skrin muat turun membunuh separuh orang.</small></span>
+      </li>
+    </ul>
+  </section>
+
+  <p class="kaki">
+    <span>Kira, aplikasi rekod untung harian untuk peniaga tepi jalan.</span>
+    <span>Pelan disemak 7 September 2026.</span>
+    <span>Menggantikan pelan bajet RM11,000 setahun.</span>
+  </p>
+</div>
