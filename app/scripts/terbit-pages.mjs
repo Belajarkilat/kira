@@ -22,6 +22,10 @@ function token() {
   return padan[1].trim();
 }
 
+// Panggil Vite terus melalui Node. Node menolak fail .cmd tanpa shell pada
+// Windows, jadi memanggil npm di sini akan gagal dengan EINVAL.
+const VITE = join(APP, "node_modules", "vite", "bin", "vite.js");
+
 function jalan(perintah, args, cwd, env) {
   execFileSync(perintah, args, { cwd, stdio: "inherit", env: { ...process.env, ...env } });
 }
@@ -30,7 +34,7 @@ const tok = token();
 const kerja = join(tmpdir(), "kira-gh-pages");
 
 console.log("Membina dengan laluan asas " + LALUAN_ASAS);
-jalan("npm", ["run", "build"], APP, { BASE_PATH: LALUAN_ASAS });
+jalan(process.execPath, [VITE, "build"], APP, { BASE_PATH: LALUAN_ASAS });
 
 console.log("Menyediakan cawangan gh-pages");
 rmSync(kerja, { recursive: true, force: true });

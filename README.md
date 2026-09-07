@@ -1,7 +1,13 @@
 # Kira
 
 Aplikasi rekod untung harian untuk peniaga tepi jalan di Malaysia.
-Disimpan 6 September 2026.
+
+**Guna terus: https://belajarkilat.github.io/kira/**
+
+Buka dalam pelayar telefon, tekan menu dan pilih Tambah ke skrin utama.
+Selepas itu ia berfungsi tanpa internet dan ikonnya duduk atas skrin macam
+aplikasi biasa. Tiada akaun, tiada muat turun, semua data dalam telefon itu
+sahaja.
 
 ---
 

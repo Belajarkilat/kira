@@ -3,6 +3,8 @@
 MVP sebenar untuk Kira, dibina dengan React dan Vite, dibungkus jadi PWA.
 Gantikan prototaip satu fail (`../prototaip-kira.html`) yang kini jadi rujukan reka bentuk sahaja.
 
+Langsung di https://belajarkilat.github.io/kira/
+
 ## Jalankan
 
 ```
@@ -10,6 +12,7 @@ npm install
 npm run dev      # pelayan pembangunan
 npm run build    # keluaran ke dist/
 npm run preview  # semak keluaran
+npm run terbit   # bina dan tolak ke cawangan gh-pages
 node scripts/buat-ikon.mjs   # jana semula ikon PNG dari lakaran undi lidi
 ```
 
