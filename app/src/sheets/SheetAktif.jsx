@@ -3,11 +3,29 @@ import Sheet from "../components/Sheet.jsx";
 import PapanNombor from "../components/PapanNombor.jsx";
 import { useStore } from "../lib/store.jsx";
 import { KATEGORI_MODAL, KATEGORI_RUMAH, HABIS } from "../lib/storage.js";
-import { rm, nilaiBuf, money } from "../lib/format.js";
-import { patutDalamTin, ringkasBulan, ayatKad } from "../lib/derive.js";
+import { rm, nilaiBuf, money, tarikhPendek } from "../lib/format.js";
+import { ofDay, patutDalamTin, ringkasBulan, ayatKad } from "../lib/derive.js";
 import { FAEDAH } from "../components/Gate.jsx";
 import { NOMBOR_SOKONGAN, bersihKod, kodSah } from "../lib/naiktaraf.js";
 import { Kad, Tanda } from "../components/Ikon.jsx";
+
+// Peniaga sibuk memang akan terlupa satu malam. Tanpa pilihan ini, malam itu
+// hilang terus sebab setiap rekod dipaku pada hari semasa.
+function PilihMalam({ hariIni, semalam, dipilih, onPilih }) {
+  return (
+    <div className="pilih-malam">
+      <span className="pm-label">Rekod untuk</span>
+      <div className="seg kecil">
+        <button type="button" aria-pressed={dipilih === hariIni} onClick={() => onPilih(hariIni)}>
+          Malam ni
+        </button>
+        <button type="button" aria-pressed={dipilih === semalam} onClick={() => onPilih(semalam)}>
+          Semalam, {tarikhPendek(semalam)}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function Chips({ pilihan, dipilih, onPilih }) {
   if (!pilihan.length) return null;
@@ -28,7 +46,8 @@ function Chips({ pilihan, dipilih, onPilih }) {
 }
 
 export default function SheetAktif({ mode, data, onTutup }) {
-  const { S, dispatch, hariIni, hariIniData, bertoast } = useStore();
+  const { S, dispatch, hariIni, semalam, bertoast } = useStore();
+  const [hariSasar, setHariSasar] = useState(hariIni);
   const [buf, setBuf] = useState("");
   const [nama, setNama] = useState(data?.nama || "");
   const [fon, setFon] = useState(data?.fon || "");
@@ -41,6 +60,9 @@ export default function SheetAktif({ mode, data, onTutup }) {
   const [tunjukAngka, setTunjukAngka] = useState(true);
   const [kuantiti, setKuantiti] = useState(1);
   const [kod, setKod] = useState("");
+  const [pasar, setPasar] = useState(() => S.closes[hariIni]?.pasar || S.pasar[0] || "");
+
+  const sasarData = ofDay(S, hariSasar);
 
   const nilai = nilaiBuf(buf);
 
@@ -279,36 +301,52 @@ export default function SheetAktif({ mode, data, onTutup }) {
 
   // ---------- tutup kira ----------
   if (mode === "tutup") {
-    const patut = patutDalamTin(S, hariIni);
+    const patut = patutDalamTin(S, hariSasar);
     const unit = S.gerai.unit || "bungkus";
+    const sudah = S.closes[hariSasar];
     return (
       <Sheet
         tajuk="Tutup Kira"
         hint="Kira semua duit dalam tin sekarang, masukkan jumlahnya."
         onTutup={onTutup}
       >
+        <PilihMalam
+          hariIni={hariIni}
+          semalam={semalam}
+          dipilih={hariSasar}
+          onPilih={(k) => {
+            setHariSasar(k);
+            setPasar(S.closes[k]?.pasar || S.pasar[0] || "");
+          }}
+        />
+        {sudah ? (
+          <div className="note kecil">
+            Malam ni dah ditutup dengan {rm(sudah.tunai)} dalam tin. Kalau kau simpan lagi sekali,
+            angka lama diganti.
+          </div>
+        ) : null}
         <div className="recon">
           <div>
             <span>Duit tukar pagi</span>
             <span>{rm(S.gerai.duitTukar)}</span>
           </div>
           <div>
-            <span>Jualan tunai hari ni</span>
-            <span>+ {rm(hariIniData.jualanTunai)}</span>
+            <span>Jualan tunai malam ni</span>
+            <span>+ {rm(sasarData.jualanTunai)}</span>
           </div>
-          {hariIniData.kutip > 0 ? (
+          {sasarData.kutip > 0 ? (
             <div>
               <span>Hutang lama dikutip</span>
-              <span>+ {rm(hariIniData.kutip)}</span>
+              <span>+ {rm(sasarData.kutip)}</span>
             </div>
           ) : null}
           <div>
-            <span>Modal hari ni</span>
-            <span>− {rm(hariIniData.modal)}</span>
+            <span>Modal malam ni</span>
+            <span>− {rm(sasarData.modal)}</span>
           </div>
           <div>
             <span>Ambil untuk rumah</span>
-            <span>− {rm(hariIniData.rumah)}</span>
+            <span>− {rm(sasarData.rumah)}</span>
           </div>
           <div className="total">
             <span>Sepatutnya dalam tin</span>
@@ -317,6 +355,28 @@ export default function SheetAktif({ mode, data, onTutup }) {
         </div>
 
         <PapanNombor buf={buf} setBuf={setBuf} />
+
+        <div className="soalan">
+          <span className="tanya">Malam ni kau di mana?</span>
+          <div className="chips">
+            {S.pasar.map((p) => (
+              <button key={p} type="button" aria-pressed={pasar === p} onClick={() => setPasar(pasar === p ? "" : p)}>
+                {p}
+              </button>
+            ))}
+            <input
+              className="field kecil lebar"
+              value={S.pasar.includes(pasar) ? "" : pasar}
+              onChange={(e) => setPasar(e.target.value)}
+              placeholder={S.pasar.length ? "Tempat lain" : "Contoh: Taman Seri"}
+              aria-label="Nama pasar atau tempat"
+            />
+          </div>
+          <span className="kaki-tanya">
+            Nama tempat diingat, malam depan kau cuma tekan. Lepas beberapa malam Laporan boleh
+            cakap tempat mana berbaloi.
+          </span>
+        </div>
 
         <div className="soalan">
           <span className="tanya">Habis pukul berapa?</span>
@@ -365,25 +425,26 @@ export default function SheetAktif({ mode, data, onTutup }) {
             const beza = nilai - patut;
             dispatch({
               type: "tutup",
-              day: hariIni,
+              day: hariSasar,
               tunai: nilai,
               patut,
               habis,
-              lebih: Number(lebih) || 0
+              lebih: Number(lebih) || 0,
+              pasar: pasar.trim()
             });
             bertoast(
               Math.abs(beza) < 0.5
-                ? "Kira tepat. Untung " + rm(hariIniData.untung)
+                ? "Kira tepat. Untung " + rm(sasarData.untung)
                 : (beza > 0 ? "Lebih " : "Kurang ") + rm(Math.abs(beza)) + " dari sepatutnya"
             );
             onTutup();
           }}
         >
-          Tutup Kira Hari Ni
+          {hariSasar === hariIni ? "Tutup Kira Malam Ni" : "Tutup Kira " + tarikhPendek(hariSasar)}
         </button>
-        {hariIniData.hutangBaru > 0 ? (
+        {sasarData.hutangBaru > 0 ? (
           <p className="footnote">
-            Jualan hutang {rm(hariIniData.hutangBaru)} hari ni tak masuk kiraan tin, sebab duitnya
+            Jualan hutang {rm(sasarData.hutangBaru)} malam ni tak masuk kiraan tin, sebab duitnya
             memang belum sampai. Untung kau tetap dikira penuh.
           </p>
         ) : null}
@@ -399,6 +460,7 @@ export default function SheetAktif({ mode, data, onTutup }) {
   if (mode === "hutang") {
     return (
       <Sheet tajuk="Hutang Baru" hint="Siapa yang ambil dulu, bayar kemudian." onTutup={onTutup}>
+        <PilihMalam hariIni={hariIni} semalam={semalam} dipilih={hariSasar} onPilih={setHariSasar} />
         <label className="lbl-field">
           <span>Nama pelanggan</span>
           <input
@@ -430,7 +492,7 @@ export default function SheetAktif({ mode, data, onTutup }) {
           className="save"
           disabled={nilai <= 0 || !nama.trim()}
           onClick={() => {
-            dispatch({ type: "hutang+", nama: nama.trim(), fon, amount: nilai, day: hariIni });
+            dispatch({ type: "hutang+", nama: nama.trim(), fon, amount: nilai, day: hariSasar });
             bertoast("Hutang direkod");
             onTutup();
           }}
@@ -468,6 +530,7 @@ export default function SheetAktif({ mode, data, onTutup }) {
 
   return (
     <Sheet tajuk={tajuk} hint={hint} onTutup={onTutup}>
+      <PilihMalam hariIni={hariIni} semalam={semalam} dipilih={hariSasar} onPilih={setHariSasar} />
       <PapanNombor buf={buf} setBuf={setBuf}>
         <Chips
           pilihan={pilihan}
@@ -511,7 +574,7 @@ export default function SheetAktif({ mode, data, onTutup }) {
         disabled={jumlah <= 0}
         onClick={() => {
           const butiran = jualan && banyak > 1 ? (note || "Jualan") + " × " + banyak : note;
-          dispatch({ type: "entry+", jenis: mode, amount: jumlah, note: butiran, day: hariIni });
+          dispatch({ type: "entry+", jenis: mode, amount: jumlah, note: butiran, day: hariSasar });
           bertoast(
             jualan
               ? "Jualan " + rm(jumlah) + " masuk"

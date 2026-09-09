@@ -2,8 +2,8 @@ import { Tanda } from "./Ikon.jsx";
 
 const SALINAN = {
   hutang: {
-    h: "Buka Buku Hutang",
-    p: "Simpan siapa berhutang, berapa, dan sejak bila. Hantar peringatan WhatsApp tanpa rasa segan."
+    h: "Buka Hutang Baru",
+    p: "Senarai yang kau dah taip kekal terbuka selamanya, dan butang Dah bayar tetap jalan. Naik taraf untuk tambah hutang baru dan hantar peringatan WhatsApp."
   },
   barang: {
     h: "Buka Untung Ikut Barang",

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useReducer, useRef, useState, useCallback } from "react";
-import { dayKey, shiftDay, jamSekarang, uid } from "./format.js";
+import { kunciHariBisnes, kunciSemalam, jamSekarang, uid } from "./format.js";
 import {
   muat,
   simpan,
@@ -50,13 +50,19 @@ function reducer(S, a) {
           patut: a.patut,
           beza: a.tunai - a.patut,
           habis: a.habis || null,
-          lebih: a.lebih || 0
+          lebih: a.lebih || 0,
+          pasar: a.pasar || null
         }
       };
       let plan = S.plan;
       if (plan === "trial" && Object.keys(closes).length >= HAD_PERCUBAAN) plan = "locked";
-      return { ...S, closes, plan };
+      // Nama pasar baru diingat supaya malam seterusnya cuma perlu ditekan.
+      const pasar = a.pasar && !S.pasar.includes(a.pasar) ? [...S.pasar, a.pasar] : S.pasar;
+      return { ...S, closes, plan, pasar };
     }
+
+    case "pasar-":
+      return { ...S, pasar: S.pasar.filter((p) => p !== a.pasar) };
 
     case "tutup-": {
       const closes = { ...S.closes };
@@ -151,21 +157,27 @@ export function StoreProvider({ children }) {
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
-  // Kunci pada tarikh hari ini, dikira semula bila hari bertukar semasa aplikasi terbuka.
-  const [hariIni, setHariIni] = useState(() => dayKey(shiftDay(0)));
+  // Hari bisnes, bukan hari kalendar. Peniaga yang kemas gerai pukul 12.40 pagi
+  // masih berada dalam malam semalam sampai jam yang dia tetapkan sendiri.
+  const tamatMalam = S.gerai.tamatMalam || 0;
+  const [hariIni, setHariIni] = useState(() => kunciHariBisnes(tamatMalam));
   useEffect(() => {
-    const id = setInterval(() => {
-      const k = dayKey(shiftDay(0));
-      setHariIni((lama) => (lama === k ? lama : k));
-    }, 60000);
+    const semak = () =>
+      setHariIni((lama) => {
+        const k = kunciHariBisnes(tamatMalam);
+        return lama === k ? lama : k;
+      });
+    semak();
+    const id = setInterval(semak, 60000);
     return () => clearInterval(id);
-  }, []);
+  }, [tamatMalam]);
 
   const nilai = useMemo(
     () => ({
       S,
       dispatch,
       hariIni,
+      semalam: kunciSemalam(hariIni),
       toast,
       bertoast,
       simpanGagal,

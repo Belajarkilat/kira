@@ -43,6 +43,25 @@ export function tarikhPendek(k) {
   return d.getDate() + " " + BULAN[d.getMonth()];
 }
 
+// Hari bisnes, bukan hari kalendar.
+//
+// Peniaga pasar malam kemas gerai lepas tengah malam. Kalau kita ikut jam
+// dinding, dia tekan Tutup Kira pukul 12.40 pagi dan jualan malam tadi jatuh
+// ke hari esok yang masih kosong, jadi aplikasi lapor dia ada beratus ringgit
+// lebih dalam tin dan malam yang baru habis itu tak pernah ditutup.
+//
+// `tamat` ialah jam pagi yang masih dikira sebagai malam semalam. Sifar
+// bermakna ikut tengah malam macam biasa.
+export function kunciHariBisnes(tamat, kini) {
+  const d = kini ? new Date(kini) : new Date();
+  if (tamat > 0 && d.getHours() < tamat) d.setDate(d.getDate() - 1);
+  return dayKey(d);
+}
+
+export function kunciSemalam(k) {
+  return dayKey(shiftDay(-1, fromKey(k)));
+}
+
 export function jamSekarang() {
   const n = new Date();
   return String(n.getHours()).padStart(2, "0") + ":" + String(n.getMinutes()).padStart(2, "0");

@@ -484,7 +484,28 @@ input,select{font:inherit;color:inherit}
 /* ---------- soalan tutup kira ---------- */
 .soalan{display:flex;flex-direction:column;gap:8px}
 .soalan .tanya{font-size:13px;font-weight:600;color:var(--muted)}
+.soalan .kaki-tanya{font-size:12px;color:var(--muted);line-height:1.45}
 .field.kecil{width:96px;padding:9px 12px;font-size:14px;border-radius:99px;text-align:center}
+.field.kecil.lebar{width:150px;text-align:left}
+
+/* ---------- malam bisnes ---------- */
+.pilih-malam{display:flex;flex-direction:column;gap:7px}
+.pilih-malam .pm-label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.02em}
+.seg.kecil button{padding:9px 6px;font-size:12.5px}
+.seg.bungkus{flex-wrap:wrap}
+.seg.bungkus button{flex:1 1 90px}
+.note.kecil{padding:13px 15px;font-size:13px;line-height:1.5}
+
+.ingat{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  padding:14px 16px;border-radius:var(--radius);
+  background:var(--surface);border:1px solid var(--accent);border-left:3px solid var(--accent);
+}
+.ingat .txt{display:flex;flex-direction:column;gap:3px;min-width:0}
+.ingat b{font-weight:700;font-size:15px}
+.ingat small{font-size:12.5px;color:var(--muted);line-height:1.45}
+
+.mini.mati{border-color:var(--line);color:var(--muted)}
 
 /* ---------- kad bulan ---------- */
 .kad-butang{

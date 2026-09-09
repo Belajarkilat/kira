@@ -1,11 +1,17 @@
 import { useStore } from "../lib/store.jsx";
-import { statusPercubaan, saranMasak, ringkasBulan } from "../lib/derive.js";
-import { money, rm } from "../lib/format.js";
+import { statusPercubaan, saranMasak, ringkasBulan, ofDay } from "../lib/derive.js";
+import { money, rm, tarikhPendek } from "../lib/format.js";
 import { Tambah, Troli, Panah, Tong, Rumah } from "../components/Ikon.jsx";
 
 export default function Utama({ onBuka }) {
-  const { S, dispatch, hariIni, hariIniData: t, bertoast } = useStore();
+  const { S, dispatch, hariIni, semalam, hariIniData: t, bertoast } = useStore();
   const ditutup = S.closes[hariIni];
+
+  // Malam semalam ada rekod tapi tak pernah ditutup. Peniaga yang balik lewat
+  // memang akan terlepas, jadi aplikasi kena tegur sendiri sementara rekod itu
+  // masih boleh diselamatkan.
+  const semalamData = ofDay(S, semalam);
+  const semalamTerlepas = !S.closes[semalam] && semalamData.list.length > 0;
   const margin = t.jualan > 0 ? Math.round((t.untung / t.jualan) * 100) : 0;
   const pc = statusPercubaan(S);
   const saran = saranMasak(S, hariIni);
@@ -54,6 +60,18 @@ export default function Utama({ onBuka }) {
           </div>
         ) : null}
       </div>
+
+      {semalamTerlepas ? (
+        <button className="ingat" onClick={() => onBuka("tutup")}>
+          <span className="txt">
+            <b>Semalam belum ditutup</b>
+            <small>
+              {tarikhPendek(semalam)} ada {semalamData.list.length} rekod tapi tin tak pernah dikira.
+              Tekan sini, pilih Semalam.
+            </small>
+          </span>
+        </button>
+      ) : null}
 
       {saran ? (
         <div className={"saran " + saran.nada}>

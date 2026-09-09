@@ -1,4 +1,4 @@
-import { dayKey, shiftDay, money, BULAN } from "./format.js";
+import { dayKey, shiftDay, fromKey, money, BULAN } from "./format.js";
 import { HAD_PERCUBAAN } from "./storage.js";
 
 // Empat jenis rekod, dan dua soalan berbeza yang mereka jawab.
@@ -70,6 +70,32 @@ export function jumlahJulat(S, dariN, hinggaN) {
     rumah += t.rumah;
   }
   return { untung, jualan, modal, rumah };
+}
+
+// ---------- untung ikut pasar ----------
+
+// Soalan yang buat peniaga pasar malam keluar rumah setiap petang ialah pasar
+// mana berbaloi. Satu malam diikat pada satu pasar semasa tutup kira, jadi
+// untung malam itu boleh dipulangkan kepada tempatnya.
+//
+// Purata dikira ikut bilangan malam berniaga, bukan hari kalendar, sebab malam
+// yang dia memang tak keluar bukan malam gagal.
+export function untungIkutPasar(S, todayKey, julat = 60) {
+  const had = dayKey(shiftDay(-julat, fromKey(todayKey)));
+  const peta = new Map();
+  for (const [k, c] of Object.entries(S.closes)) {
+    if (!c || !c.pasar || k < had || k > todayKey) continue;
+    const t = ofDay(S, k);
+    const p = peta.get(c.pasar) || { pasar: c.pasar, malam: 0, untung: 0, jualan: 0, terakhir: k };
+    p.malam += 1;
+    p.untung += t.untung;
+    p.jualan += t.jualan;
+    if (k > p.terakhir) p.terakhir = k;
+    peta.set(c.pasar, p);
+  }
+  return [...peta.values()]
+    .map((p) => ({ ...p, purata: p.untung / p.malam }))
+    .sort((a, b) => b.purata - a.purata);
 }
 
 export function hutangBelumBayar(S) {

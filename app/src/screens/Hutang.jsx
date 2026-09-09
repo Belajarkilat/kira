@@ -36,10 +36,14 @@ export default function Hutang({ onBuka, onNaikTaraf }) {
     window.open(url, "_blank", "noopener");
   }
 
+  // Buku hutang tidak pernah dikaburkan. Nama dan angka dalam senarai ini ditaip
+  // oleh peniaga sendiri, jadi mengunci pandangannya bermakna menahan datanya
+  // sendiri sebagai tebusan. Yang dikunci hanyalah kerja baru: tambah hutang dan
+  // hantar peringatan WhatsApp. Butang Dah bayar kekal terbuka sebab ia
+  // menggerakkan duit dalam tin, dan tutup kira itu percuma selamanya.
   return (
     <>
-      {kunci ? <Gate jenis="hutang" onNaikTaraf={onNaikTaraf} /> : null}
-      <div className={"gated" + (kunci ? " veiled" : "")}>
+      <div className="gated">
         <div className="hero">
           <div className="lbl">Orang belum bayar</div>
           <div className="big">
@@ -53,7 +57,9 @@ export default function Hutang({ onBuka, onNaikTaraf }) {
 
         <div className="sec">
           <h2>Senarai hutang</h2>
-          <button onClick={() => onBuka("hutang")}>+ Tambah</button>
+          <button onClick={() => (kunci ? onNaikTaraf() : onBuka("hutang"))}>
+            {kunci ? "Buka kunci" : "+ Tambah"}
+          </button>
         </div>
 
         {senarai.length === 0 ? (
@@ -92,7 +98,10 @@ export default function Hutang({ onBuka, onNaikTaraf }) {
                     </>
                   ) : (
                     <>
-                      <button className="mini wa" onClick={() => ingatkan(h)}>
+                      <button
+                        className={"mini wa" + (kunci ? " mati" : "")}
+                        onClick={() => (kunci ? onNaikTaraf() : ingatkan(h))}
+                      >
                         Ingatkan
                       </button>
                       <button
@@ -130,6 +139,8 @@ export default function Hutang({ onBuka, onNaikTaraf }) {
         <p className="footnote">
           Butang Ingatkan buka WhatsApp dengan mesej siap ditaip. Kau baca dulu sebelum hantar.
         </p>
+
+        {kunci ? <Gate jenis="hutang" onNaikTaraf={onNaikTaraf} /> : null}
       </div>
     </>
   );

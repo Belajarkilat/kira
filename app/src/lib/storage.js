@@ -1,7 +1,7 @@
 import { dayKey, shiftDay, uid, jamSekarang } from "./format.js";
 
 export const KEY = "kira.v1";
-export const VERSI = 2;
+export const VERSI = 3;
 export const HAD_PERCUBAAN = 30; // dikira ikut bilangan tutup kira, bukan hari kalendar
 
 // Satu hutang ialah dua peristiwa duit yang berlainan, bukan satu.
@@ -39,17 +39,28 @@ export function entriKutipHutang(h, day, t) {
   };
 }
 
+// Jam pagi yang masih dikira sebagai malam semalam. Peniaga siang biarkan
+// tengah malam; peniaga pasar malam pilih ikut waktu dia kemas gerai.
+export const TAMAT_MALAM = [
+  { jam: 0, label: "Tengah malam" },
+  { jam: 1, label: "1 pagi" },
+  { jam: 2, label: "2 pagi" },
+  { jam: 3, label: "3 pagi" },
+  { jam: 4, label: "4 pagi" }
+];
+
 export function keadaanKosong() {
   return {
     v: VERSI,
     onboarded: false,
-    gerai: { nama: "", duitTukar: 100, masak: 0, unit: "bungkus" },
+    gerai: { nama: "", duitTukar: 100, masak: 0, unit: "bungkus", tamatMalam: 0 },
     plan: "trial",
     tema: "auto",
     entries: [],
     closes: {},
     hutang: [],
-    menu: []
+    menu: [],
+    pasar: []
   };
 }
 
@@ -105,8 +116,9 @@ export function menuContoh() {
 export function dataContoh() {
   const s = keadaanKosong();
   s.onboarded = true;
-  s.gerai = { nama: "Nasi Lemak Kak Nor", duitTukar: 100, masak: 120, unit: "bungkus" };
+  s.gerai = { nama: "Nasi Lemak Kak Nor", duitTukar: 100, masak: 120, unit: "bungkus", tamatMalam: 0 };
   s.menu = menuContoh();
+  s.pasar = ["Depan sekolah", "Tepi surau"];
 
   const corak = [
     { j: 612, b: 238 },
@@ -127,7 +139,14 @@ export function dataContoh() {
     }
     const patut = s.gerai.duitTukar + p.j - p.b - rumah;
     const tunai = patut - [0, 0, 6.5, 0, 0, 12][6 - i];
-    s.closes[k] = { tunai, patut, beza: tunai - patut, habis: ["kena", "awal", "lewat", "kena", "awal", "kena"][6 - i], lebih: [0, 0, 14, 3, 0, 0][6 - i] };
+    s.closes[k] = {
+      tunai,
+      patut,
+      beza: tunai - patut,
+      habis: ["kena", "awal", "lewat", "kena", "awal", "kena"][6 - i],
+      lebih: [0, 0, 14, 3, 0, 0][6 - i],
+      pasar: s.pasar[(6 - i) % 2]
+    };
   }
 
   const hariIni = dayKey(shiftDay(0));
@@ -164,6 +183,8 @@ export function naikTarafKeadaan(p) {
   const s = { ...asas, ...p, gerai: { ...asas.gerai, ...(p.gerai || {}) }, v: VERSI };
   s.entries = Array.isArray(s.entries) ? s.entries.slice() : [];
   s.hutang = Array.isArray(s.hutang) ? s.hutang : [];
+  s.pasar = Array.isArray(s.pasar) ? s.pasar : [];
+  s.gerai.tamatMalam = Number(s.gerai.tamatMalam) || 0;
 
   // Versi 1 menyimpan hutang di luar kiraan untung. Bina semula entri yang
   // sepatutnya wujud, supaya rekod lama peniaga terus betul selepas kemas kini.

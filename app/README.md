@@ -90,6 +90,41 @@ dinaikkan ke bentuk versi semasa, jadi fail lama tetap boleh dimuatkan.
 Kalau `localStorage` menolak simpanan, sepanduk merah muncul di atas skrin utama dan
 dalam Tetapan, supaya peniaga tahu hari itu juga.
 
+## Malam bisnes, bukan hari kalendar
+
+Semakan 9 September 2026, selepas kritik dari sudut peniaga pasar malam. Peniaga
+yang kemas gerai pukul 12.40 pagi dulunya menekan Tutup Kira pada hari esok yang
+masih kosong, jadi aplikasi lapor dia ada beratus ringgit lebih dalam tin dan
+malam yang baru habis itu tak pernah ditutup langsung.
+
+Tetapan ada pilihan `Malam bisnes`, iaitu jam pagi yang masih dikira sebagai
+malam semalam. Lalainya tengah malam, jadi peniaga siang tidak terjejas. Fungsi
+`kunciHariBisnes` dalam `src/lib/format.js` yang menentukan hari, dan seluruh
+aplikasi membaca `hariIni` dari store, jadi tiada satu skrin pun perlu tahu.
+
+Setiap helaian yang merekod duit ada pilihan `Malam ni` atau `Semalam`, sebab
+peniaga sibuk memang akan terlupa satu malam dan tanpa pilihan itu malam tersebut
+hilang terus. Skrin Utama menegur sendiri kalau semalam ada rekod tetapi tinnya
+tak pernah dikira.
+
+## Untung ikut pasar
+
+Peniaga bergerak menjawab satu soalan setiap petang, iaitu pasar mana berbaloi.
+Satu malam diikat pada satu tempat semasa tutup kira, nama tempat itu diingat
+dalam `S.pasar` supaya malam berikutnya cuma perlu ditekan, dan Laporan
+memulangkan untung setiap malam kepada tempatnya.
+
+Purata dibahagi dengan bilangan malam berniaga, bukan hari kalendar, sebab malam
+yang peniaga memang tak keluar bukan malam gagal.
+
+## Buku hutang tidak pernah dikaburkan
+
+Nama dan angka dalam senarai hutang ditaip oleh peniaga sendiri, jadi mengunci
+pandangannya bermakna menahan datanya sendiri sebagai tebusan. Bila percubaan
+tamat, senarai kekal boleh dibaca dan butang `Dah bayar` kekal berfungsi, sebab
+ia menggerakkan duit dalam tin dan tutup kira itu percuma selamanya. Yang dikunci
+hanyalah kerja baru, iaitu tambah hutang dan hantar peringatan WhatsApp.
+
 ## Simpanan
 
 Semua data dalam `localStorage` di bawah kunci `kira.v1`. Tiada akaun, tiada pelayan.
@@ -105,6 +140,18 @@ lepas itu `plan` bertukar jadi `locked` dan tab Hutang, Barang, Laporan berkabus
   automatik, dan kod boleh dijana oleh sesiapa yang membaca berkas aplikasi.
 - Duit tukar pagi masih satu tetapan tetap, bukan nilai harian. Menukarnya mengubah
   kiraan tin bagi semua hari lampau.
+- Tiada cara mengaku hutang lapuk. Jualan hutang dikira untung pada hari barang
+  keluar dan tidak pernah ditarik balik, jadi hutang yang tak akan pulang kekal
+  menaikkan untung. Membuangnya menulis semula untung malam lama secara senyap.
+- Laporan tidak boleh membandingkan bulan dengan bulan, cuma tujuh hari, tiga
+  puluh hari dan bulan semasa.
+- Purata untung mingguan masih dibahagi tujuh hari kalendar. Hanya jadual pasar
+  yang membahagi ikut malam berniaga.
+- Perkataan unit kekal "bungkus" selepas pendaftaran dan tidak boleh diubah dalam
+  Tetapan.
+- Eksport CSV ialah fail rekod, bukan e-Invois. Tiada nombor invois dan tiada
+  nombor cukai pembeli, jadi ayat jualan tentang e-Invois menjanjikan lebih
+  daripada yang ada.
 - Belum diuji pada telefon sebenar, baru pada penyemak imbas meja bersaiz telefon.
 - Fon Bricolage Grotesque dan Archivo masih dimuat dari Google Fonts. Cache pekerja
   perkhidmatan menampung penggunaan luar talian selepas lawatan pertama, tetapi

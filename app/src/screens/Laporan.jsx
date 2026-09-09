@@ -1,5 +1,5 @@
 import { useStore } from "../lib/store.jsx";
-import { tujuhHari, jumlahJulat, terkunci, ringkasBulan } from "../lib/derive.js";
+import { tujuhHari, jumlahJulat, terkunci, ringkasBulan, untungIkutPasar } from "../lib/derive.js";
 import { eksportCsv } from "../lib/eksport.js";
 import { rm, rm0, HARI, HARI_PENDEK } from "../lib/format.js";
 import { Muat } from "../components/Ikon.jsx";
@@ -14,6 +14,7 @@ export default function Laporan({ onNaikTaraf }) {
   const mingguLepas = jumlahJulat(S, 13, 7);
   const bulan = jumlahJulat(S, 29, 0);
   const bulanIni = ringkasBulan(S, hariIni);
+  const pasar = untungIkutPasar(S, hariIni);
   const beza = minggu.untung - mingguLepas.untung;
 
   const terbaik = hari.reduce((a, x) => (!a || x.untung > a.untung ? x : a), null);
@@ -91,6 +92,64 @@ export default function Laporan({ onNaikTaraf }) {
             <span>{rm(minggu.untung)}</span>
           </div>
         </div>
+
+        <div className="sec">
+          <h2>Untung ikut pasar</h2>
+        </div>
+        {pasar.length === 0 ? (
+          <div className="empty">
+            Belum ada nama tempat direkod.
+            <br />
+            Masa tutup kira, isi kau berniaga di mana malam tu.
+          </div>
+        ) : (
+          <>
+            <div className="note">
+              {pasar.length > 1 ? (
+                <>
+                  Setiap malam di <b>{pasar[0].pasar}</b> bawa balik {rm(pasar[0].purata)}, berbanding{" "}
+                  {rm(pasar[pasar.length - 1].purata)} di <b>{pasar[pasar.length - 1].pasar}</b>.
+                </>
+              ) : (
+                <>
+                  Setakat ni cuma <b>{pasar[0].pasar}</b> yang direkod. Isi nama tempat lain masa
+                  tutup kira, lepas tu Kira boleh banding.
+                </>
+              )}
+            </div>
+            <div className="list">
+              {pasar.map((x) => (
+                <div className="item" key={x.pasar}>
+                  <div className="top">
+                    <b>{x.pasar}</b>
+                    <span>{x.malam} malam berniaga</span>
+                  </div>
+                  <div className="bar">
+                    <i
+                      className={x.purata < 0 ? "low" : ""}
+                      style={{
+                        width:
+                          Math.max(
+                            4,
+                            Math.min(100, Math.round((Math.abs(x.purata) / Math.max(1, Math.abs(pasar[0].purata))) * 100))
+                          ) + "%"
+                      }}
+                    />
+                  </div>
+                  <div className="kaki">
+                    <span className={"flag" + (x.purata >= 0 ? " ok" : "")}>
+                      {rm(x.purata)} purata semalam, jumlah {rm(x.untung)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="footnote">
+              Purata dibahagi dengan malam kau benar-benar berniaga, bukan hari kalendar. Enam puluh
+              hari terakhir sahaja dikira.
+            </p>
+          </>
+        )}
 
         <div className="sec">
           <h2>Ringkasan 30 hari</h2>

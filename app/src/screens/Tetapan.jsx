@@ -1,11 +1,12 @@
 import { useRef, useState } from "react";
 import { useStore } from "../lib/store.jsx";
 import { statusPercubaan } from "../lib/derive.js";
+import { TAMAT_MALAM } from "../lib/storage.js";
 import { eksportCsv } from "../lib/eksport.js";
 import { muatTurun, bacaFail } from "../lib/fail.js";
 import { teksSandaran, namaFailSandaran, bacaSandaran, ringkasSandaran } from "../lib/sandaran.js";
 import { rm } from "../lib/format.js";
-import { Balik } from "../components/Ikon.jsx";
+import { Balik, Tong } from "../components/Ikon.jsx";
 
 const TEMA = [
   { id: "auto", label: "Ikut telefon" },
@@ -68,7 +69,7 @@ export default function Tetapan({ onTutup, onNaikTaraf }) {
         </button>
         <div className="gerai">
           <b>Tetapan</b>
-          <small>Kira 0.1.0</small>
+          <small>Kira 0.2.0</small>
         </div>
       </div>
 
@@ -109,6 +110,62 @@ export default function Tetapan({ onTutup, onNaikTaraf }) {
         <button className="ghost" onClick={simpanGerai}>
           Simpan tetapan gerai
         </button>
+
+        <div className="sec">
+          <h2>Malam bisnes</h2>
+        </div>
+        <p className="note kecil">
+          Kalau kau kemas gerai lepas tengah malam, pilih jam kau habis. Rekod selepas tengah malam
+          akan kekal masuk malam semalam, bukan hari baru yang masih kosong.
+        </p>
+        <div className="seg bungkus">
+          {TAMAT_MALAM.map((t) => (
+            <button
+              key={t.jam}
+              aria-pressed={(S.gerai.tamatMalam || 0) === t.jam}
+              onClick={() => {
+                dispatch({ type: "gerai", gerai: { tamatMalam: t.jam } });
+                bertoast(
+                  t.jam === 0
+                    ? "Hari baru bermula tengah malam"
+                    : "Malam kau tamat pukul " + t.label.toLowerCase()
+                );
+              }}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {S.pasar.length ? (
+          <>
+            <div className="sec">
+              <h2>Pasar dan tempat</h2>
+            </div>
+            <div className="list">
+              {S.pasar.map((p) => (
+                <div className="row" key={p}>
+                  <span className="txt">
+                    <b>{p}</b>
+                  </span>
+                  <button
+                    className="del"
+                    aria-label={"Padam " + p}
+                    onClick={() => {
+                      dispatch({ type: "pasar-", pasar: p });
+                      bertoast(p + " dibuang dari senarai");
+                    }}
+                  >
+                    <Tong />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <p className="footnote">
+              Membuang nama dari senarai tidak mengubah malam yang sudah ditutup di tempat itu.
+            </p>
+          </>
+        ) : null}
 
         <div className="sec">
           <h2>Paparan</h2>
