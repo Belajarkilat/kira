@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useStore } from "../lib/store.jsx";
 import { statusPercubaan } from "../lib/derive.js";
 import { eksportCsv } from "../lib/eksport.js";
+import { muatTurun, bacaFail } from "../lib/fail.js";
+import { teksSandaran, namaFailSandaran, bacaSandaran, ringkasSandaran } from "../lib/sandaran.js";
 import { rm } from "../lib/format.js";
 import { Balik } from "../components/Ikon.jsx";
 
@@ -11,14 +13,10 @@ const TEMA = [
   { id: "gelap", label: "Gelap" }
 ];
 
-const KEADAAN = [
-  { id: "trial", label: "Percubaan" },
-  { id: "locked", label: "Terkunci" },
-  { id: "pro", label: "Dah bayar" }
-];
-
 export default function Tetapan({ onTutup, onNaikTaraf }) {
-  const { S, dispatch, bertoast, resetKosong, isiContoh, hariIni } = useStore();
+  const { S, dispatch, bertoast, resetKosong, isiContoh, hariIni, simpanGagal } = useStore();
+  const medanFail = useRef(null);
+  const [sahMuat, setSahMuat] = useState(null);
   const [nama, setNama] = useState(S.gerai.nama);
   const [tukar, setTukar] = useState(String(S.gerai.duitTukar));
   const [masak, setMasak] = useState(String(S.gerai.masak || ""));
@@ -36,6 +34,30 @@ export default function Tetapan({ onTutup, onNaikTaraf }) {
 
   async function eksport() {
     bertoast(await eksportCsv(S, hariIni));
+  }
+
+  async function simpanSandaran() {
+    bertoast(
+      await muatTurun(
+        namaFailSandaran(hariIni, S.gerai.nama),
+        teksSandaran(S),
+        "application/json;charset=utf-8"
+      )
+    );
+  }
+
+  // Fail dibaca dan disemak dahulu, dan isinya ditunjuk pada peniaga sebelum
+  // rekod sedia ada diganti. Ganti tanpa amaran boleh memusnahkan sebulan kerja.
+  async function pilihSandaran(e) {
+    const fail = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!fail) return;
+    try {
+      const keadaan = bacaSandaran(await bacaFail(fail));
+      setSahMuat({ keadaan, ringkas: ringkasSandaran(keadaan) });
+    } catch (ralat) {
+      bertoast(ralat.message || "Fail tak boleh dibaca");
+    }
   }
 
   return (
@@ -129,6 +151,46 @@ export default function Tetapan({ onTutup, onNaikTaraf }) {
         <div className="sec">
           <h2>Data</h2>
         </div>
+        {simpanGagal ? (
+          <div className="amaran" role="alert">
+            Telefon ni tak benarkan Kira simpan rekod. Simpan sandaran sekarang juga.
+          </div>
+        ) : null}
+        <button className="ghost" onClick={simpanSandaran}>
+          Simpan sandaran ke fail
+        </button>
+        <button className="ghost" onClick={() => medanFail.current && medanFail.current.click()}>
+          Muat sandaran dari fail
+        </button>
+        <input
+          ref={medanFail}
+          type="file"
+          accept="application/json,.json"
+          hidden
+          onChange={pilihSandaran}
+        />
+        {sahMuat ? (
+          <div className="note">
+            Fail ni ada <b>{sahMuat.ringkas}</b>. Kalau kau teruskan, semua rekod dalam telefon ni
+            diganti dengan isi fail tu.
+            <div className="dua-butang">
+              <button className="ghost" onClick={() => setSahMuat(null)}>
+                Batal
+              </button>
+              <button
+                className="ghost danger"
+                onClick={() => {
+                  dispatch({ type: "ganti", keadaan: sahMuat.keadaan });
+                  setSahMuat(null);
+                  bertoast("Sandaran dimuatkan");
+                  onTutup();
+                }}
+              >
+                Ganti rekod sekarang
+              </button>
+            </div>
+          </div>
+        ) : null}
         <button className="ghost" onClick={eksport}>
           Eksport semua rekod ke CSV
         </button>
@@ -158,26 +220,13 @@ export default function Tetapan({ onTutup, onNaikTaraf }) {
           </button>
         )}
 
-        <div className="sec">
-          <h2>Ujian keadaan pengguna</h2>
-        </div>
-        <div className="seg">
-          {KEADAAN.map((k) => (
-            <button
-              key={k.id}
-              aria-pressed={S.plan === k.id}
-              onClick={() => dispatch({ type: "plan", plan: k.id })}
-            >
-              {k.label}
-            </button>
-          ))}
-        </div>
         <p className="footnote">
-          Suis ini untuk tunjuk demo pada peniaga pengasas. Buang sebelum keluaran awam.
+          Semua rekod disimpan dalam telefon ini sahaja, tiada salinan di mana-mana pelayan. Simpan
+          sandaran setiap hujung bulan dan hantar fail tu pada diri sendiri dalam WhatsApp.
         </p>
 
         <p className="footnote">
-          Semua rekod disimpan dalam telefon ini sahaja. Jumlah hutang belum langsai{" "}
+          Jumlah hutang belum langsai{" "}
           {rm(S.hutang.filter((h) => !h.paid).reduce((a, h) => a + h.amount, 0))}.
         </p>
       </div>

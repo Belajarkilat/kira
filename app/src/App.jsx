@@ -13,7 +13,7 @@ import Laporan from "./screens/Laporan.jsx";
 import Tetapan from "./screens/Tetapan.jsx";
 
 export default function App() {
-  const { S, hariIni, toast } = useStore();
+  const { S, hariIni, toast, simpanGagal } = useStore();
   const [tab, setTab] = useState("utama");
   const [sheet, setSheet] = useState(null);
   const [tetapan, setTetapan] = useState(false);
@@ -66,6 +66,13 @@ export default function App() {
             <Gear />
           </button>
         </div>
+
+        {simpanGagal ? (
+          <div className="amaran" role="alert">
+            Telefon ni tak benarkan Kira simpan rekod. Buka Tetapan dan simpan sandaran sekarang,
+            sebelum kau tutup aplikasi.
+          </div>
+        ) : null}
 
         <div className="body" key={tab}>
           {tab === "utama" ? <Utama onBuka={buka} /> : null}

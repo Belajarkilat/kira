@@ -1,8 +1,43 @@
-import { dayKey, shiftDay, uid } from "./format.js";
+import { dayKey, shiftDay, uid, jamSekarang } from "./format.js";
 
 export const KEY = "kira.v1";
-export const VERSI = 1;
+export const VERSI = 2;
 export const HAD_PERCUBAAN = 30; // dikira ikut bilangan tutup kira, bukan hari kalendar
+
+// Satu hutang ialah dua peristiwa duit yang berlainan, bukan satu.
+//
+//   Jualan hutang  untung naik hari barang keluar, tetapi duit belum masuk tin.
+//                  Ditanda tunai:false supaya tutup kira tidak tercari-cari duit
+//                  yang memang tiada dalam tin.
+//   Kutip hutang   duit masuk tin hari dia bayar, tetapi untung tidak naik lagi
+//                  sebab ia sudah dikira pada hari barang keluar.
+//
+// Tanpa dua entri ini, untung sentiasa terkurang dan tutup kira menuduh peniaga
+// simpan duit lebih setiap kali ada orang langsai hutang.
+export function entriJualanHutang(h) {
+  return {
+    id: uid(),
+    type: "jualan",
+    tunai: false,
+    hutangId: h.id,
+    amount: h.amount,
+    note: "Hutang " + h.nama,
+    day: h.day,
+    t: h.t || jamSekarang()
+  };
+}
+
+export function entriKutipHutang(h, day, t) {
+  return {
+    id: uid(),
+    type: "kutip",
+    hutangId: h.id,
+    amount: h.amount,
+    note: "Bayar hutang " + h.nama,
+    day,
+    t: t || jamSekarang()
+  };
+}
 
 export function keadaanKosong() {
   return {
@@ -114,6 +149,32 @@ export function dataContoh() {
     { id: uid(), nama: "Kak Zana kedai gunting", fon: "", amount: 12.5, day: dayKey(shiftDay(-1)), paid: false },
     { id: uid(), nama: "Pak Cik Rahim", fon: "", amount: 8.0, day: dayKey(shiftDay(-4)), paid: true, paidDay: dayKey(shiftDay(-1)) }
   ];
+  for (const h of s.hutang) {
+    s.entries.push(entriJualanHutang({ ...h, t: "11:30" }));
+    if (h.paid) s.entries.push(entriKutipHutang(h, h.paidDay, "17:05"));
+  }
+  return s;
+}
+
+// Rekod yang disimpan sebelum ini mungkin ikut bentuk lama. Naikkan ia ke bentuk
+// semasa di sini, sekali sahaja semasa dimuatkan, supaya kod lain tidak perlu
+// tahu ada berapa versi pernah wujud.
+export function naikTarafKeadaan(p) {
+  const asas = keadaanKosong();
+  const s = { ...asas, ...p, gerai: { ...asas.gerai, ...(p.gerai || {}) }, v: VERSI };
+  s.entries = Array.isArray(s.entries) ? s.entries.slice() : [];
+  s.hutang = Array.isArray(s.hutang) ? s.hutang : [];
+
+  // Versi 1 menyimpan hutang di luar kiraan untung. Bina semula entri yang
+  // sepatutnya wujud, supaya rekod lama peniaga terus betul selepas kemas kini.
+  if (!(p.v >= 2)) {
+    const sudahAda = new Set(s.entries.filter((e) => e.hutangId).map((e) => e.hutangId));
+    for (const h of s.hutang) {
+      if (sudahAda.has(h.id)) continue;
+      s.entries.push(entriJualanHutang({ ...h, t: "11:30" }));
+      if (h.paid) s.entries.push(entriKutipHutang(h, h.paidDay || h.day, "17:05"));
+    }
+  }
   return s;
 }
 
@@ -123,7 +184,7 @@ export function muat() {
     if (!raw) return keadaanKosong();
     const p = JSON.parse(raw);
     if (!p || typeof p !== "object") return keadaanKosong();
-    return { ...keadaanKosong(), ...p, gerai: { ...keadaanKosong().gerai, ...(p.gerai || {}) } };
+    return naikTarafKeadaan(p);
   } catch (e) {
     return keadaanKosong();
   }

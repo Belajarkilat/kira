@@ -6,6 +6,7 @@ import { KATEGORI_MODAL, KATEGORI_RUMAH, HABIS } from "../lib/storage.js";
 import { rm, nilaiBuf, money } from "../lib/format.js";
 import { patutDalamTin, ringkasBulan, ayatKad } from "../lib/derive.js";
 import { FAEDAH } from "../components/Gate.jsx";
+import { NOMBOR_SOKONGAN, bersihKod, kodSah } from "../lib/naiktaraf.js";
 import { Kad, Tanda } from "../components/Ikon.jsx";
 
 function Chips({ pilihan, dipilih, onPilih }) {
@@ -38,6 +39,8 @@ export default function SheetAktif({ mode, data, onTutup }) {
   const [habis, setHabis] = useState("");
   const [lebih, setLebih] = useState("");
   const [tunjukAngka, setTunjukAngka] = useState(true);
+  const [kuantiti, setKuantiti] = useState(1);
+  const [kod, setKod] = useState("");
 
   const nilai = nilaiBuf(buf);
 
@@ -151,21 +154,63 @@ export default function SheetAktif({ mode, data, onTutup }) {
           <div className="paynote">
             <Kad />
             <span>
-              Pembayaran belum disambung dalam versi ini. Butang bawah membuka ciri berbayar untuk
-              ujian sahaja.
+              Bayar RM {pelan} melalui DuitNow atau pindahan bank. Lepas tu penjual bagi satu kod
+              untuk nama gerai kau, dan kod tu buka semua ciri di sini.
             </span>
           </div>
         </div>
+
+        {NOMBOR_SOKONGAN ? (
+          <button
+            className="ghost"
+            onClick={() => {
+              const mesej =
+                "Assalamualaikum, saya nak naik taraf Kira. Nama gerai saya " +
+                (S.gerai.nama || "-") +
+                ". Pelan RM " +
+                pelan +
+                ".";
+              window.open(
+                "https://wa.me/" + NOMBOR_SOKONGAN + "?text=" + encodeURIComponent(mesej),
+                "_blank",
+                "noopener"
+              );
+            }}
+          >
+            Hubungi penjual di WhatsApp
+          </button>
+        ) : null}
+
+        <label className="lbl-field">
+          <span>Kod naik taraf</span>
+          <input
+            className="field kod"
+            value={kod}
+            autoCapitalize="characters"
+            autoCorrect="off"
+            spellCheck={false}
+            onChange={(e) => setKod(e.target.value.toUpperCase().slice(0, 12))}
+            placeholder="XXXX-XXXX"
+          />
+        </label>
         <button
           className="save amber"
+          disabled={bersihKod(kod).length !== 8}
           onClick={() => {
+            if (!kodSah(S.gerai.nama, kod)) {
+              bertoast("Kod tak padan dengan nama gerai ni.");
+              return;
+            }
             dispatch({ type: "plan", plan: "pro" });
-            bertoast("Semua ciri dibuka.");
+            bertoast("Semua ciri dibuka. Terima kasih.");
             onTutup();
           }}
         >
-          Bayar RM {pelan}
+          Buka dengan kod
         </button>
+        <p className="footnote">
+          Kod terikat pada nama gerai <b>{S.gerai.nama || "kau"}</b>. Sebut nama tu masa minta kod.
+        </p>
       </Sheet>
     );
   }
@@ -248,9 +293,15 @@ export default function SheetAktif({ mode, data, onTutup }) {
             <span>{rm(S.gerai.duitTukar)}</span>
           </div>
           <div>
-            <span>Jualan hari ni</span>
-            <span>+ {rm(hariIniData.jualan)}</span>
+            <span>Jualan tunai hari ni</span>
+            <span>+ {rm(hariIniData.jualanTunai)}</span>
           </div>
+          {hariIniData.kutip > 0 ? (
+            <div>
+              <span>Hutang lama dikutip</span>
+              <span>+ {rm(hariIniData.kutip)}</span>
+            </div>
+          ) : null}
           <div>
             <span>Modal hari ni</span>
             <span>− {rm(hariIniData.modal)}</span>
@@ -330,6 +381,12 @@ export default function SheetAktif({ mode, data, onTutup }) {
         >
           Tutup Kira Hari Ni
         </button>
+        {hariIniData.hutangBaru > 0 ? (
+          <p className="footnote">
+            Jualan hutang {rm(hariIniData.hutangBaru)} hari ni tak masuk kiraan tin, sebab duitnya
+            memang belum sampai. Untung kau tetap dikira penuh.
+          </p>
+        ) : null}
         <p className="footnote">
           Dua soalan bawah tu boleh dilangkau. Tapi kalau kau jawab, esok Kira boleh cakap berapa
           patut kau masak.
@@ -396,6 +453,12 @@ export default function SheetAktif({ mode, data, onTutup }) {
       }))
     : (rumah ? KATEGORI_RUMAH : KATEGORI_MODAL).map((c) => ({ label: c }));
 
+  // Peniaga jual tiga bungkus sekali gus lebih kerap daripada satu. Tanpa
+  // kuantiti, dia kena darab dalam kepala sebelum boleh taip, tiap-tiap kali.
+  const banyak = jualan ? Math.max(1, kuantiti) : 1;
+  const jumlah = Math.round(nilai * banyak * 100) / 100;
+  const unit = S.gerai.unit || "bungkus";
+
   const tajuk = jualan ? "Tambah Jualan" : rumah ? "Ambil Untuk Rumah" : "Tambah Modal";
   const hint = jualan
     ? "Duit masuk. Pilih barang atau taip jumlah terus."
@@ -414,23 +477,52 @@ export default function SheetAktif({ mode, data, onTutup }) {
             if (p.amt) setBuf(String(Math.round(p.amt * 100)));
           }}
         />
+        {jualan ? (
+          <div className="kuantiti">
+            <span className="kq">Berapa {unit}?</span>
+            <div className="kpad">
+              <button
+                type="button"
+                aria-label="Kurangkan satu"
+                disabled={banyak <= 1}
+                onClick={() => setKuantiti((k) => Math.max(1, k - 1))}
+              >
+                −
+              </button>
+              <span className="kn" aria-live="polite">
+                {banyak}
+              </span>
+              <button
+                type="button"
+                aria-label="Tambah satu"
+                onClick={() => setKuantiti((k) => Math.min(999, k + 1))}
+              >
+                +
+              </button>
+            </div>
+            <span className="kj">
+              {banyak > 1 ? banyak + " × " + rm(nilai) + " = " + rm(jumlah) : "Harga seunit"}
+            </span>
+          </div>
+        ) : null}
       </PapanNombor>
       <button
         className={"save" + (rumah ? " rumah" : "")}
-        disabled={nilai <= 0}
+        disabled={jumlah <= 0}
         onClick={() => {
-          dispatch({ type: "entry+", jenis: mode, amount: nilai, note, day: hariIni });
+          const butiran = jualan && banyak > 1 ? (note || "Jualan") + " × " + banyak : note;
+          dispatch({ type: "entry+", jenis: mode, amount: jumlah, note: butiran, day: hariIni });
           bertoast(
             jualan
-              ? "Jualan " + rm(nilai) + " masuk"
+              ? "Jualan " + rm(jumlah) + " masuk"
               : rumah
-                ? "RM " + money(nilai) + " untuk rumah direkod"
-                : "Modal " + rm(nilai) + " direkod"
+                ? "RM " + money(jumlah) + " untuk rumah direkod"
+                : "Modal " + rm(jumlah) + " direkod"
           );
           onTutup();
         }}
       >
-        {jualan ? "Simpan Jualan" : rumah ? "Simpan" : "Simpan Modal"}
+        {jualan ? "Simpan Jualan " + rm(jumlah) : rumah ? "Simpan" : "Simpan Modal"}
       </button>
       {rumah ? (
         <p className="footnote">

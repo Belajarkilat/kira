@@ -1,6 +1,14 @@
 import { createContext, useContext, useEffect, useMemo, useReducer, useRef, useState, useCallback } from "react";
 import { dayKey, shiftDay, jamSekarang, uid } from "./format.js";
-import { muat, simpan, keadaanKosong, dataContoh, HAD_PERCUBAAN } from "./storage.js";
+import {
+  muat,
+  simpan,
+  keadaanKosong,
+  dataContoh,
+  entriJualanHutang,
+  entriKutipHutang,
+  HAD_PERCUBAAN
+} from "./storage.js";
 import { ofDay, bilanganTutup } from "./derive.js";
 
 const Ctx = createContext(null);
@@ -56,17 +64,48 @@ function reducer(S, a) {
       return { ...S, closes };
     }
 
-    case "hutang+":
+    // Hutang baru ialah jualan yang sudah berlaku. Untung naik hari ini, duit
+    // belum masuk tin. Dua fakta itu direkod serentak supaya tidak boleh terpisah.
+    case "hutang+": {
+      const h = { id: uid(), nama: a.nama, fon: a.fon || "", amount: a.amount, day: a.day, paid: false };
+      return { ...S, hutang: [...S.hutang, h], entries: [...S.entries, entriJualanHutang(h)] };
+    }
+
+    // Dia bayar. Duit masuk tin hari ini, untung tidak naik lagi sebab sudah
+    // dikira hari barang keluar.
+    case "hutang-bayar": {
+      const h = S.hutang.find((x) => x.id === a.id);
+      if (!h || h.paid) return S;
       return {
         ...S,
-        hutang: [...S.hutang, { id: uid(), nama: a.nama, fon: a.fon || "", amount: a.amount, day: a.day, paid: false }]
+        hutang: S.hutang.map((x) => (x.id === a.id ? { ...x, paid: true, paidDay: a.day } : x)),
+        entries: [...S.entries, entriKutipHutang(h, a.day)]
+      };
+    }
+
+    // Buka semula rekod yang tersilap ditanda langsai. Duit itu keluar semula
+    // dari kiraan tin.
+    case "hutang-buka":
+      return {
+        ...S,
+        hutang: S.hutang.map((h) => (h.id === a.id ? { ...h, paid: false, paidDay: undefined } : h)),
+        entries: S.entries.filter((e) => !(e.type === "kutip" && e.hutangId === a.id))
       };
 
     case "hutang~":
       return { ...S, hutang: S.hutang.map((h) => (h.id === a.id ? { ...h, ...a.patch } : h)) };
 
-    case "hutang-":
-      return { ...S, hutang: S.hutang.filter((h) => h.id !== a.id) };
+    // Padam hutang yang belum dibayar bermakna jualan itu tersilap direkod, jadi
+    // entri jualannya ikut dipadam. Padam hutang yang sudah langsai cuma
+    // mengemaskan senarai; duitnya benar-benar bergerak, jadi rekodnya kekal.
+    case "hutang-": {
+      const h = S.hutang.find((x) => x.id === a.id);
+      const hutang = S.hutang.filter((x) => x.id !== a.id);
+      if (h && !h.paid) {
+        return { ...S, hutang, entries: S.entries.filter((e) => e.hutangId !== a.id) };
+      }
+      return { ...S, hutang };
+    }
 
     case "barang+":
       return { ...S, menu: [...S.menu, { id: uid(), nama: a.nama, modal: a.modal, harga: a.harga }] };
@@ -90,8 +129,11 @@ export function StoreProvider({ children }) {
   const [toast, setToast] = useState(null);
   const timer = useRef(null);
 
+  // localStorage boleh penuh, atau ditutup dalam pelayaran peribadi. Kalau
+  // simpanan gagal, peniaga mesti tahu sekarang, bukan esok bila rekod hilang.
+  const [simpanGagal, setSimpanGagal] = useState(false);
   useEffect(() => {
-    simpan(S);
+    setSimpanGagal(!simpan(S));
   }, [S]);
 
   // Tema: auto ikut sistem, atau paksa terang / gelap.
@@ -126,12 +168,13 @@ export function StoreProvider({ children }) {
       hariIni,
       toast,
       bertoast,
+      simpanGagal,
       hariIniData: ofDay(S, hariIni),
       jumlahTutup: bilanganTutup(S),
       resetKosong: () => dispatch({ type: "ganti", keadaan: keadaanKosong() }),
       isiContoh: () => dispatch({ type: "ganti", keadaan: dataContoh() })
     }),
-    [S, hariIni, toast, bertoast]
+    [S, hariIni, toast, bertoast, simpanGagal]
   );
 
   return <Ctx.Provider value={nilai}>{children}</Ctx.Provider>;

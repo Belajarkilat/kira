@@ -37,6 +37,17 @@ export default function Utama({ onBuka }) {
             <div className="v">{rm(t.modal)}</div>
           </div>
         </div>
+        {t.hutangBaru > 0 ? (
+          <div className="hero-rumah">
+            {rm(t.hutangBaru)} daripada jualan tu diambil hutang. Untung dah dikira, duitnya belum
+            masuk tin.
+          </div>
+        ) : null}
+        {t.kutip > 0 ? (
+          <div className="hero-rumah">
+            {rm(t.kutip)} hutang lama masuk tin hari ni. Untungnya dah dikira hari barang keluar.
+          </div>
+        ) : null}
         {t.rumah > 0 ? (
           <div className="hero-rumah">
             Kau ambil {rm(t.rumah)} untuk rumah hari ni. Untung di atas tak berubah.
@@ -127,8 +138,17 @@ export default function Utama({ onBuka }) {
       ) : (
         <div className="list">
           {t.list.map((e) => {
-            const jenis = e.type === "jualan" ? "j" : e.type === "rumah" ? "r" : "b";
-            const tanda = e.type === "jualan" ? "+ " : "− ";
+            const masuk = e.type === "jualan" || e.type === "kutip";
+            const jenis = e.type === "jualan" ? "j" : e.type === "rumah" ? "r" : e.type === "kutip" ? "k" : "b";
+            const tanda = masuk ? "+ " : "− ";
+            const kaki =
+              e.type === "rumah"
+                ? " · untuk rumah"
+                : e.type === "kutip"
+                  ? " · masuk tin, bukan untung baru"
+                  : e.tunai === false
+                    ? " · belum masuk tin"
+                    : "";
             return (
               <div className="row" key={e.id}>
                 <span className={"dot " + jenis} />
@@ -136,20 +156,24 @@ export default function Utama({ onBuka }) {
                   <b>{e.note}</b>
                   <small>
                     {e.t}
-                    {e.type === "rumah" ? " · untuk rumah" : ""}
+                    {kaki}
                   </small>
                 </span>
                 <span className={"amt " + jenis}>{tanda + rm(e.amount)}</span>
-                <button
-                  className="del"
-                  aria-label={"Padam rekod " + e.note}
-                  onClick={() => {
-                    dispatch({ type: "entry-", id: e.id });
-                    bertoast("Rekod dipadam");
-                  }}
-                >
-                  <Tong />
-                </button>
+                {e.hutangId ? (
+                  <span className="del-kosong" aria-hidden="true" />
+                ) : (
+                  <button
+                    className="del"
+                    aria-label={"Padam rekod " + e.note}
+                    onClick={() => {
+                      dispatch({ type: "entry-", id: e.id });
+                      bertoast("Rekod dipadam");
+                    }}
+                  >
+                    <Tong />
+                  </button>
+                )}
               </div>
             );
           })}

@@ -1,28 +1,49 @@
 import { dayKey, shiftDay, money, BULAN } from "./format.js";
 import { HAD_PERCUBAAN } from "./storage.js";
 
-// Tiga jenis rekod. Jualan dan modal menentukan untung.
+// Empat jenis rekod, dan dua soalan berbeza yang mereka jawab.
+//
+// Untung  = jualan - modal. Jualan hutang masuk kiraan ini pada hari barang
+//           keluar, sebab untung terhasil masa barang bertukar tangan.
+// Dalam tin = duit tukar + jualan tunai + kutip hutang - modal - rumah. Jualan
+//           hutang tidak masuk sini sebab duitnya memang belum ada dalam tin,
+//           dan kutip hutang masuk sini sahaja sebab untungnya sudah dikira.
+//
 // Rumah ialah duit yang keluar dari tin masuk ke hidup peniaga, bukan kos bisnes,
 // jadi ia tidak menolak untung tetapi ia menolak baki yang sepatutnya ada dalam tin.
 export function ofDay(S, k) {
   let jualan = 0;
+  let jualanTunai = 0;
   let modal = 0;
   let rumah = 0;
+  let kutip = 0;
   const list = [];
   for (const e of S.entries) {
     if (e.day !== k) continue;
     list.push(e);
-    if (e.type === "jualan") jualan += e.amount;
-    else if (e.type === "rumah") rumah += e.amount;
+    if (e.type === "jualan") {
+      jualan += e.amount;
+      if (e.tunai !== false) jualanTunai += e.amount;
+    } else if (e.type === "rumah") rumah += e.amount;
+    else if (e.type === "kutip") kutip += e.amount;
     else modal += e.amount;
   }
   list.sort((a, c) => (c.t || "").localeCompare(a.t || ""));
-  return { jualan, modal, rumah, untung: jualan - modal, list };
+  return {
+    jualan,
+    jualanTunai,
+    hutangBaru: jualan - jualanTunai,
+    modal,
+    rumah,
+    kutip,
+    untung: jualan - modal,
+    list
+  };
 }
 
 export function patutDalamTin(S, k) {
   const t = ofDay(S, k);
-  return S.gerai.duitTukar + t.jualan - t.modal - t.rumah;
+  return S.gerai.duitTukar + t.jualanTunai + t.kutip - t.modal - t.rumah;
 }
 
 export function tujuhHari(S, todayKey) {
@@ -31,7 +52,7 @@ export function tujuhHari(S, todayKey) {
     const d = shiftDay(-i);
     const k = dayKey(d);
     const t = ofDay(S, k);
-    hari.push({ d, k, untung: t.untung, jualan: t.jualan, modal: t.modal, rumah: t.rumah, hariIni: k === todayKey });
+    hari.push({ d, k, untung: t.untung, jualan: t.jualan, modal: t.modal, rumah: t.rumah, kutip: t.kutip, hariIni: k === todayKey });
   }
   return hari;
 }
@@ -99,10 +120,12 @@ export function ringkasBulan(S, todayKey) {
   let jualan = 0;
   let modal = 0;
   let rumah = 0;
+  let kutip = 0;
   for (const e of S.entries) {
     if (kunciBulan(e.day) !== bk) continue;
     if (e.type === "jualan") jualan += e.amount;
     else if (e.type === "rumah") rumah += e.amount;
+    else if (e.type === "kutip") kutip += e.amount;
     else modal += e.amount;
   }
 
@@ -114,9 +137,9 @@ export function ringkasBulan(S, todayKey) {
     bezaDikesan += Math.abs(c.beza || 0);
   }
 
-  const hutangKutip = S.hutang
-    .filter((h) => h.paid && h.paidDay && kunciBulan(h.paidDay) === bk)
-    .reduce((a, h) => a + h.amount, 0);
+  // Dikira dari entri kutip, bukan dari senarai hutang, supaya angka ini kekal
+  // sama dengan duit yang benar-benar masuk tin bulan ini.
+  const hutangKutip = kutip;
 
   const untung = jualan - modal;
   return {
@@ -192,10 +215,11 @@ export function saranMasak(S, todayKey) {
 
 export function barisCsv(S) {
   const baris = [["tarikh", "masa", "jenis", "butiran", "jumlah"]];
-  const nama = { jualan: "Jualan", belian: "Modal", rumah: "Ambil untuk rumah" };
+  const nama = { jualan: "Jualan", belian: "Modal", rumah: "Ambil untuk rumah", kutip: "Kutip hutang" };
   const isih = S.entries.slice().sort((a, b) => (a.day + (a.t || "")).localeCompare(b.day + (b.t || "")));
   for (const e of isih) {
-    baris.push([e.day, e.t || "", nama[e.type] || e.type, e.note || "", e.amount.toFixed(2)]);
+    const jenis = e.type === "jualan" && e.tunai === false ? "Jualan hutang" : nama[e.type] || e.type;
+    baris.push([e.day, e.t || "", jenis, e.note || "", e.amount.toFixed(2)]);
   }
   return baris;
 }

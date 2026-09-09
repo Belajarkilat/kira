@@ -65,52 +65,68 @@ export default function Hutang({ onBuka, onNaikTaraf }) {
         ) : (
           <div className="list">
             {senarai.map((h) => (
-              <div className={"row" + (h.paid ? " paid" : "")} key={h.id}>
+              <div className={"row hutang" + (h.paid ? " paid" : "")} key={h.id}>
                 <span className="txt">
                   <b>{h.nama}</b>
-                  <small>{h.paid ? "Dah bayar" : "Sejak " + jarakHari(h.day, hariIni)}</small>
+                  <small>
+                    {h.paid ? "Dah bayar, duit dah masuk tin" : "Sejak " + jarakHari(h.day, hariIni)}
+                  </small>
                 </span>
                 <span className="amt">{rm(h.amount)}</span>
-                {h.paid ? (
-                  <>
-                    <button
-                      className="mini"
-                      onClick={() => dispatch({ type: "hutang~", id: h.id, patch: { paid: false } })}
-                    >
-                      Buka
-                    </button>
-                    <button
-                      className="del"
-                      aria-label={"Padam hutang " + h.nama}
-                      onClick={() => {
-                        dispatch({ type: "hutang-", id: h.id });
-                        bertoast("Rekod hutang dipadam");
-                      }}
-                    >
-                      <Tong />
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button className="mini wa" onClick={() => ingatkan(h)}>
-                      Ingatkan
-                    </button>
-                    <button
-                      className="mini"
-                      onClick={() => {
-                        dispatch({ type: "hutang~", id: h.id, patch: { paid: true, paidDay: hariIni } });
-                        bertoast("Dah langsai");
-                      }}
-                    >
-                      Bayar
-                    </button>
-                  </>
-                )}
+                <span className="aksi">
+                  {h.paid ? (
+                    <>
+                      <button className="mini" onClick={() => dispatch({ type: "hutang-buka", id: h.id })}>
+                        Buka
+                      </button>
+                      <button
+                        className="del"
+                        aria-label={"Padam hutang " + h.nama}
+                        onClick={() => {
+                          dispatch({ type: "hutang-", id: h.id });
+                          bertoast("Rekod dibuang. Jualan dan kutipan kekal dalam kira.");
+                        }}
+                      >
+                        <Tong />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button className="mini wa" onClick={() => ingatkan(h)}>
+                        Ingatkan
+                      </button>
+                      <button
+                        className="mini kuat"
+                        onClick={() => {
+                          dispatch({ type: "hutang-bayar", id: h.id, day: hariIni });
+                          bertoast("Dah langsai. " + rm(h.amount) + " masuk tin hari ni.");
+                        }}
+                      >
+                        Dah bayar
+                      </button>
+                      <button
+                        className="del"
+                        aria-label={"Padam hutang " + h.nama}
+                        onClick={() => {
+                          dispatch({ type: "hutang-", id: h.id });
+                          bertoast("Hutang dibuang. Jualannya ditarik balik dari kira.");
+                        }}
+                      >
+                        <Tong />
+                      </button>
+                    </>
+                  )}
+                </span>
               </div>
             ))}
           </div>
         )}
 
+        <p className="footnote">
+          Hutang baru terus dikira sebagai jualan hari barang keluar, jadi untung kau betul walaupun
+          duit belum sampai. Bila dia bayar, tekan <b>Dah bayar</b> supaya tutup kira tahu duit tu
+          baru masuk tin.
+        </p>
         <p className="footnote">
           Butang Ingatkan buka WhatsApp dengan mesej siap ditaip. Kau baca dulu sebelum hantar.
         </p>

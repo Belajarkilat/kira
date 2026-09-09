@@ -525,3 +525,60 @@ input,select{font:inherit;color:inherit}
 .faedah li{display:flex;gap:10px;align-items:center;font-size:14px}
 .faedah .tk{width:16px;height:16px;flex:none;color:var(--good);line-height:0}
 .faedah .tk svg{width:16px;height:16px;stroke-width:2.6}
+
+/* ---------- hutang dalam kira ---------- */
+.hero-rumah + .hero-rumah{margin-top:8px;padding-top:8px}
+.dot.k{background:var(--accent)}
+.amt.k{color:var(--good)}
+.del-kosong{width:32px;flex:none}
+
+/* ---------- kuantiti jualan ---------- */
+.kuantiti{
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius);padding:10px 12px;
+}
+.kuantiti .kq{font-size:13px;font-weight:600;flex:none}
+.kuantiti .kj{
+  flex:1;text-align:right;font-size:12.5px;color:var(--muted);
+  font-variant-numeric:tabular-nums;
+}
+.kpad{display:flex;align-items:center;gap:4px;flex:none}
+.kpad button{
+  width:44px;height:44px;border-radius:12px;
+  background:var(--surface-2);border:1px solid var(--line-strong);
+  font-size:22px;font-weight:600;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+}
+.kpad button:disabled{opacity:.35}
+.kpad .kn{
+  min-width:38px;text-align:center;
+  font-family:"Bricolage Grotesque","Archivo",sans-serif;
+  font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;
+}
+
+/* Baris hutang bawa tiga tindakan. Nama pelanggan dapat baris penuh, butang
+   turun ke baris kedua, supaya nama tidak terpotong jadi dua huruf. */
+.row.hutang{flex-wrap:wrap;row-gap:10px;padding:14px}
+.row.hutang .txt{flex:1 1 auto}
+.row.hutang .amt{flex:none}
+.row.hutang .aksi{flex:1 0 100%;display:flex;justify-content:flex-end;align-items:center;gap:8px}
+.row.hutang .mini{padding:11px 15px;font-size:13px}
+.row.hutang .mini.kuat{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.row.hutang.paid .mini.kuat{background:none;color:var(--ink)}
+.row.hutang .del{padding:12px}
+.row.hutang .del svg{width:18px;height:18px}
+
+/* ---------- amaran simpanan dan sandaran ---------- */
+.amaran{
+  margin:0 var(--pad);padding:12px 14px;border-radius:var(--radius);
+  background:var(--bad-soft);color:var(--bad);border:1px solid var(--bad);
+  font-size:13px;line-height:1.45;font-weight:600;
+}
+.body > .amaran{margin:0}
+.dua-butang{display:flex;gap:8px;margin-top:12px}
+.dua-butang button{flex:1}
+.field.kod{
+  font-family:"Bricolage Grotesque","Archivo",sans-serif;
+  font-size:20px;font-weight:700;letter-spacing:.12em;text-align:center;
+}

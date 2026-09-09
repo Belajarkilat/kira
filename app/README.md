@@ -14,6 +14,7 @@ npm run build    # keluaran ke dist/
 npm run preview  # semak keluaran
 npm run terbit   # bina dan tolak ke cawangan gh-pages
 node scripts/buat-ikon.mjs   # jana semula ikon PNG dari lakaran undi lidi
+node scripts/kod-naik-taraf.mjs "Nama Gerai"   # jana kod naik taraf selepas peniaga bayar
 ```
 
 ## Skrin
@@ -29,7 +30,8 @@ node scripts/buat-ikon.mjs   # jana semula ikon PNG dari lakaran undi lidi
 
 Enam helaian bawah dalam `src/sheets/SheetAktif.jsx`: tambah jualan, tambah modal,
 ambil untuk rumah, hutang baru, tutup kira, kad bulan, naik taraf. Yang melibatkan
-duit guna papan nombor sen-dahulu.
+duit guna papan nombor sen-dahulu. Helaian jualan ada kuantiti, jadi tiga bungkus
+RM 3 ditekan sebagai tiga, bukan didarab dalam kepala dahulu.
 
 ## Versi Kak Ani
 
@@ -48,6 +50,45 @@ Lima perubahan:
 Percubaan dilonggarkan dari 14 kepada 30 kali tutup kira, supaya paywall tidak
 memotong tepat sebelum data cukup untuk membuktikan nilai.
 
+## Hutang masuk kira
+
+Semakan 9 September 2026. Sebelum ini buku hutang terpisah daripada enjin kiraan,
+jadi jualan hutang tidak menaikkan untung dan duit bayaran balik yang masuk tin
+dilaporkan sebagai lebihan yang tidak diketahui puncanya. Satu hutang kini menjadi
+dua peristiwa duit yang berasingan:
+
+| Peristiwa | Untung | Duit dalam tin |
+|---|---|---|
+| Jualan hutang, hari barang keluar | Naik | Tidak berubah, ditanda `tunai: false` |
+| Kutip hutang, hari dia bayar | Tidak berubah | Naik, entri jenis `kutip` |
+
+Entri itu dicipta oleh reducer serentak dengan rekod hutang, jadi kedua-duanya tidak
+boleh terpisah. Rekod versi 1 yang tersimpan sebelum ini dinaikkan sekali semasa
+dimuatkan, dalam `naikTarafKeadaan`.
+
+## Naik taraf tanpa gerbang pembayaran
+
+Peniaga bayar melalui DuitNow atau pindahan bank, kemudian penjual menjana satu kod
+dengan `scripts/kod-naik-taraf.mjs` dan menghantarnya. Kod itu terikat pada nama
+gerai, jadi kod yang tersebar dalam kumpulan WhatsApp tidak membuka aplikasi orang
+lain. Isi `NOMBOR_SOKONGAN` dalam `src/lib/naiktaraf.js` untuk menghidupkan butang
+WhatsApp dalam helaian naik taraf.
+
+Hadnya jelas: garam berada dalam berkas yang dihantar ke pelayar, jadi sesiapa yang
+sanggup membaca kod aplikasi boleh menjana kod sendiri. Ia menutup pintu yang dulu
+terbuka luas, bukan pintu berkunci. Pemeriksaan di pelayan hanya berbaloi selepas
+ada pelanggan yang cukup ramai.
+
+## Sandaran
+
+Tetapan ada dua butang. Simpan sandaran menulis fail JSON yang mengandungi seluruh
+keadaan aplikasi. Muat sandaran membaca fail itu, menunjukkan isinya, dan hanya
+mengganti rekod selepas peniaga menekan pengesahan kedua. Fail sandaran juga
+dinaikkan ke bentuk versi semasa, jadi fail lama tetap boleh dimuatkan.
+
+Kalau `localStorage` menolak simpanan, sepanduk merah muncul di atas skrin utama dan
+dalam Tetapan, supaya peniaga tahu hari itu juga.
+
 ## Simpanan
 
 Semua data dalam `localStorage` di bawah kunci `kira.v1`. Tiada akaun, tiada pelayan.
@@ -59,9 +100,10 @@ lepas itu `plan` bertukar jadi `locked` dan tab Hutang, Barang, Laporan berkabus
 
 ## Belum siap
 
-- Pembayaran sebenar belum disambung. Butang Bayar dalam helaian naik taraf hanya
-  menukar keadaan kepada `pro` untuk ujian.
-- Suis "Ujian keadaan pengguna" dalam Tetapan mesti dibuang sebelum keluaran awam.
+- Pembayaran masih dikendalikan tangan. Tiada gerbang pembayaran, tiada resit
+  automatik, dan kod boleh dijana oleh sesiapa yang membaca berkas aplikasi.
+- Duit tukar pagi masih satu tetapan tetap, bukan nilai harian. Menukarnya mengubah
+  kiraan tin bagi semua hari lampau.
 - Belum diuji pada telefon sebenar, baru pada penyemak imbas meja bersaiz telefon.
 - Fon Bricolage Grotesque dan Archivo masih dimuat dari Google Fonts. Cache pekerja
   perkhidmatan menampung penggunaan luar talian selepas lawatan pertama, tetapi
