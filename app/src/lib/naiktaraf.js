@@ -13,7 +13,7 @@ const GARAM = "kira-gerai-2026";
 // Tiada 0, O, 1 dan I supaya kod boleh dibaca melalui panggilan telefon.
 const ABJAD = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
 
-export const NOMBOR_SOKONGAN = ""; // isi nombor WhatsApp penjual, contoh "60123456789"
+export const NOMBOR_SOKONGAN = "60106640353"; // nombor WhatsApp penjual, format antarabangsa tanpa tanda tambah
 
 export function namaAsas(nama) {
   return String(nama || "")

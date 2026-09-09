@@ -71,8 +71,9 @@ dimuatkan, dalam `naikTarafKeadaan`.
 Peniaga bayar melalui DuitNow atau pindahan bank, kemudian penjual menjana satu kod
 dengan `scripts/kod-naik-taraf.mjs` dan menghantarnya. Kod itu terikat pada nama
 gerai, jadi kod yang tersebar dalam kumpulan WhatsApp tidak membuka aplikasi orang
-lain. Isi `NOMBOR_SOKONGAN` dalam `src/lib/naiktaraf.js` untuk menghidupkan butang
-WhatsApp dalam helaian naik taraf.
+lain. Butang WhatsApp dalam helaian naik taraf menghantar peniaga ke
+`NOMBOR_SOKONGAN` dalam `src/lib/naiktaraf.js`, dengan nama gerai dan pelan sudah
+terisi dalam mesej. Nombor itu terbit dalam berkas awam, jadi guna nombor bisnes.
 
 Hadnya jelas: garam berada dalam berkas yang dihantar ke pelayar, jadi sesiapa yang
 sanggup membaca kod aplikasi boleh menjana kod sendiri. Ia menutup pintu yang dulu
